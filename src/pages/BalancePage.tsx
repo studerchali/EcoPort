@@ -26,6 +26,13 @@ import { useFinanceStore } from '@/store/financeStore'
 import { formatCurrency, formatDate } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
+const sectionTitles: Record<string, string> = {
+  mensual: 'Resumen mensual',
+  cuentas: 'Saldos por cuenta',
+  deuda: 'Deudas y posición neta',
+  historico: 'Evolución histórica',
+}
+
 export function BalancePage() {
   const [section, setSection] = useState('mensual')
   const { monthlyBalance, computedAccounts, kpis } = useFinanceSelectors()
@@ -80,188 +87,192 @@ export function BalancePage() {
         </Card>
       </div>
 
-      <Tabs value={section} onValueChange={setSection} className="space-y-4">
-        <BalanceSectionNav value={section} onChange={setSection} />
+      <Card className="overflow-hidden">
+        <Tabs
+          value={section}
+          onValueChange={setSection}
+          className="flex w-full flex-col gap-0"
+        >
+          <CardHeader className="space-y-3 border-b bg-muted/20 pb-4">
+            <BalanceSectionNav value={section} onChange={setSection} />
+            <p className="text-sm font-medium text-foreground">
+              {sectionTitles[section]}
+            </p>
+          </CardHeader>
 
-        <TabsContent value="mensual" className="mt-0">
-          <Card>
-            <CardContent className="overflow-x-auto pt-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Mes</TableHead>
-                    <TableHead className="text-right">Ingresos EUR</TableHead>
-                    <TableHead className="text-right">Gastos EUR</TableHead>
-                    <TableHead className="text-right">Balance EUR</TableHead>
-                    <TableHead className="text-right">Ingresos USD</TableHead>
-                    <TableHead className="text-right">Gastos USD</TableHead>
-                    <TableHead className="text-right">Balance USD</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {monthlyBalance.map((row) => (
-                    <TableRow key={row.month}>
-                      <TableCell className="font-medium">{row.month}</TableCell>
-                      <TableCell className="text-right">
-                        {row.incomeEUR > 0 ? (
-                          <CurrencyAmount amount={row.incomeEUR} variant="income" />
-                        ) : '—'}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {row.expenseEUR > 0 ? (
-                          <CurrencyAmount amount={row.expenseEUR} variant="expense" />
-                        ) : '—'}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <CurrencyAmount amount={row.balanceEUR} variant="balance" />
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {row.incomeUSD > 0 ? formatCurrency(row.incomeUSD, 'USD') : '—'}
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {row.expenseUSD > 0 ? formatCurrency(row.expenseUSD, 'USD') : '—'}
-                      </TableCell>
-                      <TableCell className="text-right text-muted-foreground">
-                        {formatCurrency(row.balanceUSD, 'USD')}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow className="bg-muted/50 font-semibold">
-                    <TableCell>Total {selectedYear}</TableCell>
-                    <TableCell className="text-right">
-                      <CurrencyAmount amount={kpis.totalIncomeEUR} variant="income" />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <CurrencyAmount amount={kpis.totalExpenseEUR} variant="expense" />
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <CurrencyAmount amount={kpis.netBalanceEUR} variant="balance" />
-                    </TableCell>
-                    <TableCell colSpan={3} />
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="cuentas" className="mt-0">
-          <Card>
-            <CardContent className="overflow-x-auto pt-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Cuenta</TableHead>
-                    <TableHead className="text-right">Saldo base</TableHead>
-                    <TableHead>Moneda</TableHead>
-                    <TableHead className="text-right">Saldo calculado (EUR)</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {computedAccounts.map((acc) => (
-                    <TableRow key={acc.account}>
-                      <TableCell className="font-medium">{acc.account}</TableCell>
-                      <TableCell className="text-right">
-                        {formatCurrency(acc.amount, acc.currency)}
-                      </TableCell>
-                      <TableCell>{acc.currency}</TableCell>
-                      <TableCell className="text-right">
-                        <CurrencyAmount
-                          amount={acc.computedEUR}
-                          variant={acc.computedEUR >= 0 ? 'income' : 'expense'}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="deuda" className="mt-0">
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Deudas pendientes</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <CardContent className="p-0">
+            <TabsContent value="mensual" className="m-0 outline-none">
+              <div className="overflow-x-auto p-4 sm:p-6">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nombre</TableHead>
-                      <TableHead className="text-right">Monto</TableHead>
+                      <TableHead>Mes</TableHead>
+                      <TableHead className="text-right">Ingresos EUR</TableHead>
+                      <TableHead className="text-right">Gastos EUR</TableHead>
+                      <TableHead className="text-right">Balance EUR</TableHead>
+                      <TableHead className="text-right">Ingresos USD</TableHead>
+                      <TableHead className="text-right">Gastos USD</TableHead>
+                      <TableHead className="text-right">Balance USD</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {debts.map((d) => (
-                      <TableRow key={d.id}>
-                        <TableCell>{d.name}</TableCell>
+                    {monthlyBalance.map((row) => (
+                      <TableRow key={row.month}>
+                        <TableCell className="font-medium">{row.month}</TableCell>
                         <TableCell className="text-right">
-                          <CurrencyAmount amount={d.amount} currency={d.currency} variant="expense" />
+                          {row.incomeEUR > 0 ? (
+                            <CurrencyAmount amount={row.incomeEUR} variant="income" />
+                          ) : '—'}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {row.expenseEUR > 0 ? (
+                            <CurrencyAmount amount={row.expenseEUR} variant="expense" />
+                          ) : '—'}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <CurrencyAmount amount={row.balanceEUR} variant="balance" />
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground">
+                          {row.incomeUSD > 0 ? formatCurrency(row.incomeUSD, 'USD') : '—'}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground">
+                          {row.expenseUSD > 0 ? formatCurrency(row.expenseUSD, 'USD') : '—'}
+                        </TableCell>
+                        <TableCell className="text-right text-muted-foreground">
+                          {formatCurrency(row.balanceUSD, 'USD')}
                         </TableCell>
                       </TableRow>
                     ))}
-                    <TableRow className="font-semibold">
-                      <TableCell>Total deuda</TableCell>
+                    <TableRow className="bg-muted/50 font-semibold">
+                      <TableCell>Total {selectedYear}</TableCell>
                       <TableCell className="text-right">
-                        <CurrencyAmount amount={totalDebt} variant="expense" />
+                        <CurrencyAmount amount={kpis.totalIncomeEUR} variant="income" />
                       </TableCell>
+                      <TableCell className="text-right">
+                        <CurrencyAmount amount={kpis.totalExpenseEUR} variant="expense" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <CurrencyAmount amount={kpis.netBalanceEUR} variant="balance" />
+                      </TableCell>
+                      <TableCell colSpan={3} />
                     </TableRow>
                   </TableBody>
                 </Table>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Balance vs Deuda</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span>Balance total</span>
-                  <CurrencyAmount amount={totalBalance} variant="income" />
-                </div>
-                <div className="flex justify-between">
-                  <span>Deuda total</span>
-                  <CurrencyAmount amount={totalDebt} variant="expense" />
-                </div>
-                <div className={cn('flex justify-between border-t pt-4 font-semibold')}>
-                  <span>Posición neta</span>
-                  <CurrencyAmount amount={netPosition} variant="balance" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+              </div>
+            </TabsContent>
 
-        <TabsContent value="historico" className="mt-0">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Balance histórico</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {historyChart.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={historyChart}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip />
-                    <Legend />
-                    <Line type="monotone" dataKey="balanceEUR" name="Balance EUR" stroke="hsl(142 76% 36%)" />
-                    <Line type="monotone" dataKey="deudaEUR" name="Deuda EUR" stroke="hsl(0 72% 51%)" />
-                    <Line type="monotone" dataKey="balanceUSD" name="Balance USD" stroke="hsl(220 60% 45%)" />
-                  </LineChart>
-                </ResponsiveContainer>
-              ) : (
-                <p className="py-8 text-center text-muted-foreground">
-                  Sin datos históricos
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="cuentas" className="m-0 outline-none">
+              <div className="overflow-x-auto p-4 sm:p-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cuenta</TableHead>
+                      <TableHead className="text-right">Saldo base</TableHead>
+                      <TableHead>Moneda</TableHead>
+                      <TableHead className="text-right">Saldo calculado (EUR)</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {computedAccounts.map((acc) => (
+                      <TableRow key={acc.account}>
+                        <TableCell className="font-medium">{acc.account}</TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(acc.amount, acc.currency)}
+                        </TableCell>
+                        <TableCell>{acc.currency}</TableCell>
+                        <TableCell className="text-right">
+                          <CurrencyAmount
+                            amount={acc.computedEUR}
+                            variant={acc.computedEUR >= 0 ? 'income' : 'expense'}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="deuda" className="m-0 outline-none">
+              <div className="grid gap-4 p-4 sm:grid-cols-2 sm:p-6">
+                <div className="rounded-lg border bg-card">
+                  <div className="border-b px-4 py-3">
+                    <h3 className="text-sm font-semibold">Deudas pendientes</h3>
+                  </div>
+                  <div className="overflow-x-auto p-4 pt-2">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Nombre</TableHead>
+                          <TableHead className="text-right">Monto</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {debts.map((d) => (
+                          <TableRow key={d.id}>
+                            <TableCell>{d.name}</TableCell>
+                            <TableCell className="text-right">
+                              <CurrencyAmount amount={d.amount} currency={d.currency} variant="expense" />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        <TableRow className="font-semibold">
+                          <TableCell>Total deuda</TableCell>
+                          <TableCell className="text-right">
+                            <CurrencyAmount amount={totalDebt} variant="expense" />
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+                <div className="rounded-lg border bg-card">
+                  <div className="border-b px-4 py-3">
+                    <h3 className="text-sm font-semibold">Balance vs Deuda</h3>
+                  </div>
+                  <div className="space-y-4 p-4">
+                    <div className="flex justify-between">
+                      <span>Balance total</span>
+                      <CurrencyAmount amount={totalBalance} variant="income" />
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Deuda total</span>
+                      <CurrencyAmount amount={totalDebt} variant="expense" />
+                    </div>
+                    <div className={cn('flex justify-between border-t pt-4 font-semibold')}>
+                      <span>Posición neta</span>
+                      <CurrencyAmount amount={netPosition} variant="balance" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="historico" className="m-0 outline-none">
+              <div className="p-4 sm:p-6">
+                {historyChart.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={320}>
+                    <LineChart data={historyChart}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 12 }} />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="balanceEUR" name="Balance EUR" stroke="hsl(142 76% 36%)" />
+                      <Line type="monotone" dataKey="deudaEUR" name="Deuda EUR" stroke="hsl(0 72% 51%)" />
+                      <Line type="monotone" dataKey="balanceUSD" name="Balance USD" stroke="hsl(220 60% 45%)" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="py-12 text-center text-muted-foreground">
+                    Sin datos históricos
+                  </p>
+                )}
+              </div>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
+      </Card>
     </div>
   )
 }

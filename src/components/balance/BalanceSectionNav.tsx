@@ -15,7 +15,10 @@ interface BalanceSectionNavProps {
 
 export function BalanceSectionNav({ value, onChange }: BalanceSectionNavProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <nav
+      aria-label="Secciones de balance"
+      className="scrollbar-none -mx-1 flex w-full gap-1 overflow-x-auto px-1 sm:mx-0 sm:gap-1.5 sm:px-0"
+    >
       {sections.map(({ value: v, label, icon: Icon }) => {
         const active = value === v
         return (
@@ -23,18 +26,19 @@ export function BalanceSectionNav({ value, onChange }: BalanceSectionNavProps) {
             key={v}
             type="button"
             onClick={() => onChange(v)}
+            aria-current={active ? 'page' : undefined}
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition-all',
+              'inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border px-3 py-2 text-xs font-medium transition-all sm:flex-1 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm',
               active
-                ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                : 'border-border bg-card text-muted-foreground hover:border-primary/30 hover:bg-muted/50 hover:text-foreground'
+                ? 'border-primary/40 bg-primary text-primary-foreground shadow-sm'
+                : 'border-transparent bg-transparent text-muted-foreground hover:border-border hover:bg-background/80 hover:text-foreground'
             )}
           >
-            <Icon className={cn('h-3.5 w-3.5 shrink-0', active && 'text-primary')} />
-            <span>{label}</span>
+            <Icon className={cn('h-3.5 w-3.5 shrink-0 sm:h-4 sm:w-4', active && 'text-primary-foreground')} />
+            <span className="whitespace-nowrap">{label}</span>
           </button>
         )
       })}
-    </div>
+    </nav>
   )
 }
