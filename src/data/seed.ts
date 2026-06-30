@@ -10,7 +10,7 @@ export const seedData: FinanceData = {
     {
       id: "inc-seed-1",
       date: "2026-05-29",
-      source: "Trabajo",
+      source: "Salario",
       amount: 116,
       currency: "EUR",
       account: "Efectivo",
@@ -19,7 +19,7 @@ export const seedData: FinanceData = {
     {
       id: "inc-seed-2",
       date: "2026-05-06",
-      source: "Trabajo",
+      source: "Salario",
       amount: 123.7,
       currency: "EUR",
       account: "Efectivo",
@@ -28,7 +28,7 @@ export const seedData: FinanceData = {
     {
       id: "inc-seed-3",
       date: "2026-04-30",
-      source: "Trabajo",
+      source: "Salario",
       amount: 1437.99,
       currency: "EUR",
       account: "Santander",
@@ -37,7 +37,7 @@ export const seedData: FinanceData = {
     {
       id: "inc-seed-4",
       date: "2026-03-30",
-      source: "Trabajo",
+      source: "Salario",
       amount: 230.81,
       currency: "EUR",
       account: "Santander",
@@ -46,7 +46,7 @@ export const seedData: FinanceData = {
     {
       id: "inc-seed-5",
       date: "2026-01-09",
-      source: "Trabajo",
+      source: "Salario",
       amount: 1494.3,
       currency: "EUR",
       account: "Santander",
@@ -55,7 +55,7 @@ export const seedData: FinanceData = {
     {
       id: "inc-seed-6",
       date: "2026-05-30",
-      source: "Trabajo",
+      source: "Salario",
       amount: 1437.99,
       currency: "EUR",
       account: "Santander",
@@ -96,7 +96,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-4",
       date: "2026-05-25",
-      category: "Comida",
+      category: "Alimentación",
       detail: "Burritos y helado",
       amount: 20.8,
       currency: "EUR",
@@ -106,7 +106,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-5",
       date: "2026-05-22",
-      category: "Super",
+      category: "Alimentación",
       detail: "Charter",
       amount: 0.89,
       currency: "EUR",
@@ -116,7 +116,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-6",
       date: "2026-05-21",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 4.08,
       currency: "EUR",
@@ -126,7 +126,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-7",
       date: "2026-05-20",
-      category: "OCIO",
+      category: "Ocio",
       detail: "Birra sadi",
       amount: 6,
       currency: "EUR",
@@ -136,7 +136,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-8",
       date: "2026-05-19",
-      category: "OCIO",
+      category: "Ocio",
       detail: "Mercabanal birra",
       amount: 3.5,
       currency: "EUR",
@@ -146,7 +146,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-9",
       date: "2026-05-19",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 2.75,
       currency: "EUR",
@@ -156,7 +156,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-10",
       date: "2026-05-19",
-      category: "OCIO",
+      category: "Ocio",
       detail: "Esquinita mia",
       amount: 5.5,
       currency: "EUR",
@@ -166,7 +166,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-11",
       date: "2026-05-18",
-      category: "OCIO",
+      category: "Ocio",
       detail: "Mercabanal",
       amount: 6.65,
       currency: "EUR",
@@ -176,7 +176,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-12",
       date: "2026-05-16",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 1.8,
       currency: "EUR",
@@ -186,7 +186,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-13",
       date: "2026-05-11",
-      category: "Viaje",
+      category: "Ocio",
       detail: "Renfe cercanias",
       amount: 11.1,
       currency: "EUR",
@@ -196,7 +196,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-14",
       date: "2026-05-08",
-      category: "Super",
+      category: "Alimentación",
       detail: "Comida stock",
       amount: 20.74,
       currency: "EUR",
@@ -216,7 +216,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-16",
       date: "2026-05-04",
-      category: "Devolucion",
+      category: "Otro",
       detail: "Pago euge",
       amount: 226.3,
       currency: "EUR",
@@ -226,7 +226,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-17",
       date: "2026-05-04",
-      category: "Devolucion",
+      category: "Otro",
       detail: "Pago Emi",
       amount: 291.62,
       currency: "EUR",
@@ -236,7 +236,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-18",
       date: "2026-05-04",
-      category: "Devolucion",
+      category: "Otro",
       detail: "Pago lucho",
       amount: 459.68,
       currency: "EUR",
@@ -246,7 +246,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-19",
       date: "2026-05-02",
-      category: "Viaje",
+      category: "Ocio",
       detail: "Tren de Nord",
       amount: 16.05,
       currency: "EUR",
@@ -256,7 +256,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-20",
       date: "2026-04-30",
-      category: "Comida",
+      category: "Alimentación",
       detail: "Muerde la pasta",
       amount: 10.95,
       currency: "EUR",
@@ -266,7 +266,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-21",
       date: "2026-04-25",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 22.05,
       currency: "EUR",
@@ -276,7 +276,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-22",
       date: "2026-04-25",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 7.79,
       currency: "EUR",
@@ -286,7 +286,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-23",
       date: "2026-04-23",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 3.12,
       currency: "EUR",
@@ -296,7 +296,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-24",
       date: "2026-04-23",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 6.16,
       currency: "EUR",
@@ -306,7 +306,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-25",
       date: "2026-04-22",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 2.08,
       currency: "EUR",
@@ -326,7 +326,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-27",
       date: "2026-04-20",
-      category: "Alquiler",
+      category: "Vivienda",
       detail: "Alquiler mes abril",
       amount: 240,
       currency: "EUR",
@@ -356,7 +356,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-30",
       date: "2026-04-16",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 2.95,
       currency: "EUR",
@@ -366,7 +366,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-31",
       date: "2026-04-15",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 13.29,
       currency: "EUR",
@@ -376,7 +376,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-32",
       date: "2026-04-04",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 14.4,
       currency: "EUR",
@@ -386,7 +386,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-33",
       date: "2026-04-03",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 0.96,
       currency: "EUR",
@@ -396,7 +396,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-34",
       date: "2026-04-02",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 7.8,
       currency: "EUR",
@@ -416,7 +416,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-36",
       date: "2026-04-02",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 6.16,
       currency: "EUR",
@@ -426,7 +426,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-37",
       date: "2026-04-01",
-      category: "Super",
+      category: "Alimentación",
       detail: "Consum",
       amount: 12.48,
       currency: "EUR",
@@ -436,7 +436,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-38",
       date: "2026-03-20",
-      category: "Alquiler",
+      category: "Vivienda",
       detail: "Alquiler mes marzo",
       amount: 240,
       currency: "EUR",
@@ -446,7 +446,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-39",
       date: "2026-03-15",
-      category: "Devolucion",
+      category: "Otro",
       detail: "Pago deuda euge",
       amount: 1000,
       currency: "EUR",
@@ -456,7 +456,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-40",
       date: "2026-03-01",
-      category: "Super",
+      category: "Alimentación",
       detail: "Gastos marzo simplificado",
       amount: 242.48,
       currency: "EUR",
@@ -466,7 +466,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-41",
       date: "2026-02-20",
-      category: "Alquiler",
+      category: "Vivienda",
       detail: "Alquiler mes febrero",
       amount: 240,
       currency: "EUR",
@@ -476,7 +476,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-42",
       date: "2026-02-01",
-      category: "Super",
+      category: "Alimentación",
       detail: "Gastos febrero simplificado",
       amount: 229.24,
       currency: "EUR",
@@ -486,7 +486,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-43",
       date: "2026-01-20",
-      category: "Alquiler",
+      category: "Vivienda",
       detail: "Alquiler mes enerto",
       amount: 240,
       currency: "EUR",
@@ -496,7 +496,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-44",
       date: "2026-01-01",
-      category: "Super",
+      category: "Alimentación",
       detail: "Gastos enero simplificado",
       amount: 140.55,
       currency: "EUR",
@@ -506,7 +506,7 @@ export const seedData: FinanceData = {
     {
       id: "exp-seed-45",
       date: "2025-12-20",
-      category: "Alquiler",
+      category: "Vivienda",
       detail: "Alquiler mes diciembre",
       amount: 240,
       currency: "EUR",

@@ -10,6 +10,7 @@ import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { AuthError } from '@/components/auth/AuthError'
 import { useAuth } from '@/contexts/AuthContext'
 import { APP_ROUTES } from '@/lib/routes'
+import { isAnyOAuthEnabled } from '@/lib/env'
 
 export function RegisterPage() {
   const { signUpWithEmail, user } = useAuth()
@@ -71,12 +72,14 @@ export function RegisterPage() {
     <AuthLayout title="Crear cuenta" subtitle="Empieza a gestionar tus finanzas">
       <div className="space-y-4">
         <OAuthButtons onError={setError} />
-        <div className="relative">
-          <Separator />
-          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
-            o con email
-          </span>
-        </div>
+        {isAnyOAuthEnabled() && (
+          <div className="relative">
+            <Separator />
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+              o con email
+            </span>
+          </div>
+        )}
         <AuthError message={error} />
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

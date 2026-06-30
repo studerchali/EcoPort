@@ -10,6 +10,47 @@ import XLSX from 'xlsx'
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const root = join(__dirname, '..')
 
+/** Mantener sincronizado con src/lib/category-map.ts */
+const LEGACY_EXPENSE_CATEGORY_MAP = {
+  Super: 'Alimentación',
+  Comida: 'Alimentación',
+  Alquiler: 'Vivienda',
+  OCIO: 'Ocio',
+  Viaje: 'Ocio',
+  Devolucion: 'Otro',
+  Transporte: 'Transporte',
+  Suscripciones: 'Suscripciones',
+  Salud: 'Salud',
+  Educación: 'Educación',
+  Servicios: 'Servicios',
+  Otro: 'Otro',
+}
+
+const LEGACY_INCOME_SOURCE_MAP = {
+  Trabajo: 'Salario',
+  Salario: 'Salario',
+  Nómina: 'Salario',
+  Nomina: 'Salario',
+  Freelance: 'Freelance',
+  Autónomo: 'Freelance',
+  Inversiones: 'Inversiones',
+  Alquiler: 'Alquiler',
+  Venta: 'Venta',
+  Regalo: 'Regalo',
+  Reembolso: 'Reembolso',
+  Otro: 'Otro',
+}
+
+function mapExpenseCategory(name) {
+  const trimmed = String(name ?? '').trim()
+  return LEGACY_EXPENSE_CATEGORY_MAP[trimmed] ?? (trimmed || 'Otro')
+}
+
+function mapIncomeSource(name) {
+  const trimmed = String(name ?? '').trim()
+  return LEGACY_INCOME_SOURCE_MAP[trimmed] ?? (trimmed || 'Otro')
+}
+
 function excelDateToISO(serial) {
   if (!serial || typeof serial !== 'number') return null
   return new Date((serial - 25569) * 86400 * 1000).toISOString().slice(0, 10)
@@ -121,7 +162,7 @@ function parseIncomes(sheet) {
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i]
     const date = excelDateToISO(row[0])
-    const source = String(row[1] ?? '').trim()
+    const source = mapIncomeSource(row[1])
     const amount = Number(row[2])
     const currency = String(row[3] ?? 'EUR').trim()
     const account = String(row[4] ?? '').trim()
@@ -142,7 +183,7 @@ function parseExpenses(sheet) {
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i]
     const date = excelDateToISO(row[0])
-    const category = String(row[1] ?? '').trim()
+    const category = mapExpenseCategory(row[1])
     const detail = String(row[2] ?? '').trim()
     const amount = Number(row[3])
     const currency = String(row[4] ?? 'EUR').trim()

@@ -21,6 +21,20 @@ export function isDemoAccountEnabled(): boolean {
   return import.meta.env.VITE_DEMO_ENABLED === 'true' && getDemoCredentials() !== null
 }
 
+/** OAuth Google — activar solo tras habilitar el proveedor en Supabase Dashboard. */
+export function isOAuthGoogleEnabled(): boolean {
+  return import.meta.env.VITE_OAUTH_GOOGLE_ENABLED === 'true'
+}
+
+/** OAuth Apple — activar solo tras habilitar el proveedor en Supabase Dashboard. */
+export function isOAuthAppleEnabled(): boolean {
+  return import.meta.env.VITE_OAUTH_APPLE_ENABLED === 'true'
+}
+
+export function isAnyOAuthEnabled(): boolean {
+  return isOAuthGoogleEnabled() || isOAuthAppleEnabled()
+}
+
 /** URL base de la app (producción: dominio Vercel). */
 export function getAppUrl(): string {
   const configured = import.meta.env.VITE_APP_URL

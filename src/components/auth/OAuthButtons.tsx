@@ -2,9 +2,26 @@ import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
+import {
+  isOAuthAppleEnabled,
+  isOAuthGoogleEnabled,
+} from '@/lib/env'
 
 interface OAuthButtonsProps {
   onError: (message: string) => void
+}
+
+function oauthErrorMessage(message: string): string {
+  if (
+    message.includes('not enabled') ||
+    message.includes('Unsupported provider')
+  ) {
+    return (
+      'Inicio con Google/Apple no está configurado en el servidor. ' +
+      'Usa email y contraseña o la cuenta demo.'
+    )
+  }
+  return message
 }
 
 export function OAuthButtons({ onError }: OAuthButtonsProps) {
@@ -13,46 +30,57 @@ export function OAuthButtons({ onError }: OAuthButtonsProps) {
     'google' | 'apple' | null
   >(null)
 
+  const googleEnabled = isOAuthGoogleEnabled()
+  const appleEnabled = isOAuthAppleEnabled()
+
+  if (!googleEnabled && !appleEnabled) {
+    return null
+  }
+
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setLoadingProvider(provider)
     onError('')
     const { error } = await signInWithOAuth(provider)
     if (error) {
-      onError(error.message)
+      onError(oauthErrorMessage(error.message))
       setLoadingProvider(null)
     }
   }
 
   return (
     <div className="grid gap-2">
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        disabled={loadingProvider !== null}
-        onClick={() => handleOAuth('google')}
-      >
-        {loadingProvider === 'google' ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <GoogleIcon className="mr-2 h-4 w-4" />
-        )}
-        Continuar con Google
-      </Button>
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        disabled={loadingProvider !== null}
-        onClick={() => handleOAuth('apple')}
-      >
-        {loadingProvider === 'apple' ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <AppleIcon className="mr-2 h-4 w-4" />
-        )}
-        Continuar con Apple
-      </Button>
+      {googleEnabled && (
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          disabled={loadingProvider !== null}
+          onClick={() => handleOAuth('google')}
+        >
+          {loadingProvider === 'google' ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <GoogleIcon className="mr-2 h-4 w-4" />
+          )}
+          Continuar con Google
+        </Button>
+      )}
+      {appleEnabled && (
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          disabled={loadingProvider !== null}
+          onClick={() => handleOAuth('apple')}
+        >
+          {loadingProvider === 'apple' ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <AppleIcon className="mr-2 h-4 w-4" />
+          )}
+          Continuar con Apple
+        </Button>
+      )}
     </div>
   )
 }
