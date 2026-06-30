@@ -8,7 +8,8 @@ import {
   type ReactNode,
 } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { isDemoUser, loadDemoSeedData } from '@/lib/demo'
+import { isDemoUser } from '@/lib/demo'
+import { isMissingTableError, SCHEMA_SETUP_MESSAGE } from '@/lib/supabase-errors'
 import { splitTransactions, toUnifiedTransaction } from '@/lib/mappers'
 import {
   addExpenseRecord,
@@ -70,17 +71,16 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       const { transactions: txs } = await fetchActiveFinanceData({ limit: 2000 })
       setTransactions(txs)
     } catch (err) {
+      if (isMissingTableError(err)) {
+        setTransactions([])
+        setError(SCHEMA_SETUP_MESSAGE)
+        return
+      }
       setError(err instanceof Error ? err.message : 'Error al cargar transacciones')
     } finally {
       setLoading(false)
     }
   }, [isSupabaseMode])
-
-  useEffect(() => {
-    if (user && isDemoUser(user)) {
-      loadDemoSeedData()
-    }
-  }, [user])
 
   useEffect(() => {
     if (isSupabaseMode) {

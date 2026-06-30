@@ -8,6 +8,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useTransactions } from '@/contexts/TransactionsContext'
+import { useInvestments } from '@/contexts/InvestmentsContext'
 import { useFinanceStore } from '@/store/financeStore'
 import {
   exportJSON,
@@ -23,8 +25,25 @@ export function ImportExportMenu() {
   const getExportData = useFinanceStore((s) => s.getExportData)
   const importData = useFinanceStore((s) => s.importData)
   const resetToSeed = useFinanceStore((s) => s.resetToSeed)
-  const incomes = useFinanceStore((s) => s.incomes)
-  const expenses = useFinanceStore((s) => s.expenses)
+  const {
+    incomes,
+    expenses,
+    isSupabaseMode,
+    addIncome,
+    addExpense,
+    refresh: refreshTransactions,
+  } = useTransactions()
+  const { holdings, importHoldings, refresh: refreshInvestments } = useInvestments()
+
+  const buildExportPayload = () => {
+    const base = getExportData()
+    return {
+      ...base,
+      incomes,
+      expenses,
+      holdings,
+    }
+  }
 
   const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -35,8 +54,29 @@ export function ImportExportMenu() {
       toast.error('Archivo JSON inválido')
       return
     }
-    importData(data, true)
-    toast.success('Datos importados correctamente')
+
+    try {
+      if (isSupabaseMode) {
+        for (const income of data.incomes) {
+          await addIncome(income)
+        }
+        for (const expense of data.expenses) {
+          await addExpense(expense)
+        }
+        if (data.holdings?.length) {
+          await importHoldings(data.holdings, 'replace')
+        }
+        await refreshTransactions()
+        await refreshInvestments()
+      } else {
+        importData(data, true)
+      }
+      toast.success('Datos importados correctamente')
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Error al importar datos'
+      )
+    }
     e.target.value = ''
   }
 
@@ -57,7 +97,7 @@ export function ImportExportMenu() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => exportJSON(getExportData())}>
+          <DropdownMenuItem onClick={() => exportJSON(buildExportPayload())}>
             <Download className="mr-2 h-4 w-4" />
             Exportar JSON (backup)
           </DropdownMenuItem>
@@ -74,18 +114,26 @@ export function ImportExportMenu() {
             <Upload className="mr-2 h-4 w-4" />
             Importar JSON
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => {
-              if (confirm('¿Restaurar datos de ejemplo? Se perderán los cambios.')) {
-                resetToSeed()
-                toast.success('Datos de ejemplo restaurados')
-              }
-            }}
-          >
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Restaurar datos de ejemplo
-          </DropdownMenuItem>
+          {!isSupabaseMode && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  if (
+                    confirm(
+                      '¿Restaurar datos de ejemplo? Se perderán los cambios.'
+                    )
+                  ) {
+                    resetToSeed()
+                    toast.success('Datos de ejemplo restaurados')
+                  }
+                }}
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Restaurar datos de ejemplo
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </>

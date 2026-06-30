@@ -18,7 +18,7 @@ import {
   type CreateInvestmentInput,
   type UpdateInvestmentInput,
 } from '@/lib/investments'
-import { isMissingTableError } from '@/lib/supabase-errors'
+import { isMissingTableError, SCHEMA_SETUP_MESSAGE } from '@/lib/supabase-errors'
 import { useFinanceStore } from '@/store/financeStore'
 import type { Investment } from '@/types/database'
 import type { InvestmentHolding } from '@/types/finance'
@@ -54,22 +54,14 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
   const deleteHoldingLocal = useFinanceStore((s) => s.deleteHolding)
   const importHoldingsLocal = useFinanceStore((s) => s.importHoldings)
 
-  const wantsSupabase = Boolean(user) && !isDemoUser(user)
-  const [supabaseSchemaMissing, setSupabaseSchemaMissing] = useState(false)
-  const useRemoteDb = wantsSupabase && !supabaseSchemaMissing
+  const isSupabaseMode = Boolean(user) && !isDemoUser(user)
 
   const [investments, setInvestments] = useState<Investment[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (!wantsSupabase) {
-      setSupabaseSchemaMissing(false)
-    }
-  }, [wantsSupabase])
-
   const refresh = useCallback(async () => {
-    if (!useRemoteDb) return
+    if (!isSupabaseMode) return
     setLoading(true)
     setError(null)
     try {
@@ -77,35 +69,34 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
       setInvestments(rows)
     } catch (err) {
       if (isMissingTableError(err)) {
-        setSupabaseSchemaMissing(true)
         setInvestments([])
-        setError(null)
+        setError(SCHEMA_SETUP_MESSAGE)
         return
       }
       setError(err instanceof Error ? err.message : 'Error al cargar inversiones')
     } finally {
       setLoading(false)
     }
-  }, [useRemoteDb])
+  }, [isSupabaseMode])
 
   useEffect(() => {
-    if (useRemoteDb) {
+    if (isSupabaseMode) {
       void refresh()
     } else {
       setInvestments([])
       setError(null)
       setLoading(false)
     }
-  }, [useRemoteDb, refresh])
+  }, [isSupabaseMode, refresh])
 
   const holdings = useMemo(() => {
-    if (!useRemoteDb) return storeHoldings
+    if (!isSupabaseMode) return storeHoldings
     return investments.map(investmentToHolding)
-  }, [useRemoteDb, storeHoldings, investments])
+  }, [isSupabaseMode, storeHoldings, investments])
 
   const addInvestment = useCallback(
     async (input: CreateInvestmentInput) => {
-      if (!useRemoteDb) {
+      if (!isSupabaseMode) {
         addHoldingLocal({
           ticker: input.asset,
           platform: input.platform,
@@ -129,45 +120,16 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
           updated_at: new Date().toISOString(),
         }
       }
-      try {
-        const created = await createInvestment(input)
-        await refresh()
-        return created
-      } catch (err) {
-        if (isMissingTableError(err)) {
-          setSupabaseSchemaMissing(true)
-          addHoldingLocal({
-            ticker: input.asset,
-            platform: input.platform,
-            units: input.quantity,
-            avgPrice: input.buy_price,
-            currentPrice: input.current_price,
-          })
-          const created = useFinanceStore.getState().holdings.at(-1)
-          if (!created) throw new Error('No se pudo crear la inversión')
-          return {
-            id: created.id,
-            user_id: 'local',
-            asset: created.ticker,
-            platform: created.platform,
-            quantity: created.units,
-            buy_price: created.avgPrice,
-            current_price: created.currentPrice,
-            currency: input.currency ?? 'USD',
-            notes: input.notes ?? null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }
-        }
-        throw err
-      }
+      const created = await createInvestment(input)
+      await refresh()
+      return created
     },
-    [useRemoteDb, addHoldingLocal, refresh]
+    [isSupabaseMode, addHoldingLocal, refresh]
   )
 
   const updateInvestmentFn = useCallback(
     async (id: string, input: UpdateInvestmentInput) => {
-      if (!useRemoteDb) {
+      if (!isSupabaseMode) {
         updateHoldingLocal(id, {
           ticker: input.asset,
           platform: input.platform,
@@ -191,61 +153,23 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
           updated_at: new Date().toISOString(),
         }
       }
-      try {
-        const updated = await updateInvestment(id, input)
-        await refresh()
-        return updated
-      } catch (err) {
-        if (isMissingTableError(err)) {
-          setSupabaseSchemaMissing(true)
-          updateHoldingLocal(id, {
-            ticker: input.asset,
-            platform: input.platform,
-            units: input.quantity,
-            avgPrice: input.buy_price,
-            currentPrice: input.current_price,
-          })
-          const updated = useFinanceStore.getState().holdings.find((h) => h.id === id)
-          if (!updated) throw new Error('Inversión no encontrada')
-          return {
-            id: updated.id,
-            user_id: 'local',
-            asset: updated.ticker,
-            platform: updated.platform,
-            quantity: updated.units,
-            buy_price: updated.avgPrice,
-            current_price: updated.currentPrice,
-            currency: input.currency ?? 'USD',
-            notes: input.notes ?? null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          }
-        }
-        throw err
-      }
+      const updated = await updateInvestment(id, input)
+      await refresh()
+      return updated
     },
-    [useRemoteDb, updateHoldingLocal, refresh]
+    [isSupabaseMode, updateHoldingLocal, refresh]
   )
 
   const deleteInvestmentFn = useCallback(
     async (id: string) => {
-      if (!useRemoteDb) {
+      if (!isSupabaseMode) {
         deleteHoldingLocal(id)
         return
       }
-      try {
-        await deleteInvestment(id)
-        await refresh()
-      } catch (err) {
-        if (isMissingTableError(err)) {
-          setSupabaseSchemaMissing(true)
-          deleteHoldingLocal(id)
-          return
-        }
-        throw err
-      }
+      await deleteInvestment(id)
+      await refresh()
     },
-    [useRemoteDb, deleteHoldingLocal, refresh]
+    [isSupabaseMode, deleteHoldingLocal, refresh]
   )
 
   const importHoldingsFn = useCallback(
@@ -253,62 +177,49 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
       holdingsToImport: Omit<InvestmentHolding, 'id'>[],
       strategy: 'replace' | 'merge'
     ) => {
-      const importLocal = () => {
+      if (!isSupabaseMode) {
         importHoldingsLocal(holdingsToImport, strategy)
-      }
-
-      if (!useRemoteDb) {
-        importLocal()
         return
       }
 
-      try {
-        const existingRows = await getInvestments()
+      const existingRows = await getInvestments()
 
-        if (strategy === 'replace') {
-          for (const inv of existingRows) {
-            await deleteInvestment(inv.id)
-          }
+      if (strategy === 'replace') {
+        for (const inv of existingRows) {
+          await deleteInvestment(inv.id)
         }
-
-        const mergeBase = strategy === 'merge' ? existingRows : []
-
-        for (const h of holdingsToImport) {
-          const existing = mergeBase.find(
-            (inv) => inv.asset === h.ticker && inv.platform === h.platform
-          )
-          if (existing) {
-            await updateInvestment(existing.id, {
-              asset: h.ticker,
-              platform: h.platform,
-              quantity: h.units,
-              buy_price: h.avgPrice,
-              current_price: h.currentPrice,
-              currency: 'USD',
-            })
-          } else {
-            await createInvestment({
-              asset: h.ticker,
-              platform: h.platform,
-              quantity: h.units,
-              buy_price: h.avgPrice,
-              current_price: h.currentPrice,
-              currency: 'USD',
-            })
-          }
-        }
-
-        await refresh()
-      } catch (err) {
-        if (isMissingTableError(err)) {
-          setSupabaseSchemaMissing(true)
-          importLocal()
-          return
-        }
-        throw err
       }
+
+      const mergeBase = strategy === 'merge' ? existingRows : []
+
+      for (const h of holdingsToImport) {
+        const existing = mergeBase.find(
+          (inv) => inv.asset === h.ticker && inv.platform === h.platform
+        )
+        if (existing) {
+          await updateInvestment(existing.id, {
+            asset: h.ticker,
+            platform: h.platform,
+            quantity: h.units,
+            buy_price: h.avgPrice,
+            current_price: h.currentPrice,
+            currency: 'USD',
+          })
+        } else {
+          await createInvestment({
+            asset: h.ticker,
+            platform: h.platform,
+            quantity: h.units,
+            buy_price: h.avgPrice,
+            current_price: h.currentPrice,
+            currency: 'USD',
+          })
+        }
+      }
+
+      await refresh()
     },
-    [useRemoteDb, importHoldingsLocal, refresh]
+    [isSupabaseMode, importHoldingsLocal, refresh]
   )
 
   const value = useMemo(
@@ -317,7 +228,7 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
       holdings,
       loading,
       error,
-      isSupabaseMode: useRemoteDb,
+      isSupabaseMode,
       refresh,
       addInvestment,
       updateInvestment: updateInvestmentFn,
@@ -329,7 +240,7 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
       holdings,
       loading,
       error,
-      useRemoteDb,
+      isSupabaseMode,
       refresh,
       addInvestment,
       updateInvestmentFn,

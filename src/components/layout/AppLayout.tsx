@@ -23,6 +23,7 @@ import { cn } from '@/lib/utils'
 import { useFinanceStore } from '@/store/financeStore'
 import { DevModeBanner } from '@/components/auth/DevModeBanner'
 import { DemoBanner } from '@/components/auth/DemoBanner'
+import { SchemaSetupBanner } from '@/components/auth/SchemaSetupBanner'
 import { useAuth } from '@/contexts/AuthContext'
 import { isDemoUser } from '@/lib/demo'
 import { UserMenu } from '@/components/auth/UserMenu'
@@ -72,6 +73,7 @@ export function AppLayout() {
       </a>
       {publicAccess && <DevModeBanner />}
       {!publicAccess && isDemoUser(user) && <DemoBanner />}
+      <SchemaSetupBanner />
       <div className="flex flex-1">
       <aside
         className="hidden w-64 flex-col border-r border-border bg-card lg:flex"

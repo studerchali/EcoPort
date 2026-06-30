@@ -11,10 +11,17 @@ import type {
 } from '@/types/finance'
 import { seedData } from '@/data/seed'
 import { rememberAccountInList } from '@/lib/accounts'
+import {
+  getStorageKey,
+  migrateLegacyStorage,
+  usesRemoteData,
+  type StorageScope,
+} from '@/lib/user-storage'
 
 interface FinanceState extends FinanceData {
   savedAccounts: string[]
   selectedYear: number
+  storageScope: StorageScope
   setSelectedYear: (year: number) => void
   rememberAccount: (account: string) => void
   addIncome: (income: Omit<Income, 'id'>) => void
@@ -42,12 +49,41 @@ interface FinanceState extends FinanceData {
 const generateId = (prefix: string) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
 
+const emptyTransactional = {
+  incomes: [] as Income[],
+  expenses: [] as Expense[],
+  holdings: [] as InvestmentHolding[],
+}
+
+function preferencesPartialize(state: FinanceState) {
+  return {
+    savedAccounts: state.savedAccounts,
+    selectedYear: state.selectedYear,
+    settings: state.settings,
+    accountBalances: state.accountBalances,
+    debts: state.debts,
+    fixedIncome: state.fixedIncome,
+    balanceHistory: state.balanceHistory,
+    storageScope: state.storageScope,
+  }
+}
+
+function fullPartialize(state: FinanceState) {
+  return {
+    ...preferencesPartialize(state),
+    incomes: state.incomes,
+    expenses: state.expenses,
+    holdings: state.holdings,
+  }
+}
+
 export const useFinanceStore = create<FinanceState>()(
   persist(
     (set, get) => ({
       ...seedData,
       savedAccounts: seedData.savedAccounts ?? [],
       selectedYear: 2026,
+      storageScope: 'guest' as StorageScope,
 
       setSelectedYear: (year) => set({ selectedYear: year }),
 
@@ -195,6 +231,7 @@ export const useFinanceStore = create<FinanceState>()(
               ...data,
               savedAccounts: data.savedAccounts ?? savedAccounts,
               selectedYear: state.selectedYear,
+              storageScope: state.storageScope,
             }
           }
 
@@ -208,11 +245,17 @@ export const useFinanceStore = create<FinanceState>()(
             balanceHistory: data.balanceHistory,
             settings: data.settings,
             savedAccounts,
+            storageScope: state.storageScope,
           }
         }),
 
       resetToSeed: () =>
-        set({ ...seedData, savedAccounts: seedData.savedAccounts ?? [], selectedYear: 2026 }),
+        set({
+          ...seedData,
+          savedAccounts: seedData.savedAccounts ?? [],
+          selectedYear: 2026,
+          storageScope: get().storageScope,
+        }),
 
       getExportData: () => {
         const {
@@ -224,8 +267,8 @@ export const useFinanceStore = create<FinanceState>()(
           fixedIncome,
           balanceHistory,
           settings,
+          savedAccounts,
         } = get()
-        const { savedAccounts } = get()
         return {
           incomes,
           expenses,
@@ -240,20 +283,53 @@ export const useFinanceStore = create<FinanceState>()(
       },
     }),
     {
-      name: 'ecoport-v1',
+      name: getStorageKey('guest'),
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        incomes: state.incomes,
-        expenses: state.expenses,
-        accountBalances: state.accountBalances,
-        debts: state.debts,
-        holdings: state.holdings,
-        fixedIncome: state.fixedIncome,
-        balanceHistory: state.balanceHistory,
-        settings: state.settings,
-        savedAccounts: state.savedAccounts,
-        selectedYear: state.selectedYear,
-      }),
+      partialize: (state) =>
+        usesRemoteData(state.storageScope)
+          ? preferencesPartialize(state)
+          : fullPartialize(state),
     }
   )
 )
+
+let rebindPromise: Promise<void> | null = null
+let lastBoundScope: StorageScope | null = null
+
+/** Cambia el almacenamiento local al usuario actual (preferencias por cuenta). */
+export async function rebindFinanceStore(scope: StorageScope): Promise<void> {
+  if (lastBoundScope === scope && rebindPromise === null) return
+
+  if (rebindPromise) {
+    await rebindPromise
+    if (lastBoundScope === scope) return
+  }
+
+  rebindPromise = (async () => {
+    const key = getStorageKey(scope)
+    const remote = usesRemoteData(scope)
+
+    migrateLegacyStorage(key, scope)
+
+    useFinanceStore.persist.setOptions({
+      name: key,
+      partialize: (state) =>
+        remote ? preferencesPartialize(state) : fullPartialize(state),
+    })
+
+    useFinanceStore.setState({
+      storageScope: scope,
+      ...(remote ? emptyTransactional : {}),
+    })
+
+    await useFinanceStore.persist.rehydrate()
+    useFinanceStore.setState({ storageScope: scope })
+    lastBoundScope = scope
+  })()
+
+  try {
+    await rebindPromise
+  } finally {
+    rebindPromise = null
+  }
+}
