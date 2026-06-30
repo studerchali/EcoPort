@@ -1,3 +1,8 @@
+/**
+ * Fuente única de verdad para cálculos financieros (AGENTE 1).
+ * Toda vista (Dashboard, Balance, KPIs, gráficos) debe derivar totales desde aquí.
+ * Nunca calcular montos inline en páginas o componentes.
+ */
 import {
   format,
   getMonth,

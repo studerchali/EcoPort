@@ -8,8 +8,12 @@ dist-ssr/
 
 # Environment variables (never commit secrets)
 .env
-.env.*
+.env.local
+.env.*.local
 !.env.example
+
+# Vercel
+.vercel/
 
 # Logs
 logs/
@@ -47,5 +51,3 @@ coverage/
 
 # PWA dev
 dev-dist/
-.vercel
-.env*

@@ -18,7 +18,7 @@ export async function ensureUserProfile(user: User): Promise<void> {
     { onConflict: 'id' }
   )
 
-  if (error && !isMissingTableError(error)) {
+  if (error && !isMissingTableError(error) && import.meta.env.DEV) {
     console.warn('[ensureUserProfile]', error.message)
   }
 }

@@ -49,3 +49,25 @@ Proveedores opcionales: Google, Apple (OAuth).
 ## 5. Row Level Security
 
 El esquema incluye RLS en todas las tablas. Cada usuario solo accede a sus propios datos. Las transacciones son **inmutables** (solo INSERT + SELECT); las correcciones usan `reversal_of_id`.
+
+Verifica en **Table Editor** que RLS esté **Enabled** en: `profiles`, `categories`, `transactions`, `investments`, `balances`.
+
+## 6. Datos por cuenta
+
+| Sesión | Dónde se guardan ingresos/gastos/inversiones |
+|--------|---------------------------------------------|
+| Google / email | Tablas Supabase filtradas por `user_id` |
+| Demo (`demo@ecoport.io`) | localStorage `ecoport-v1-demo` |
+| Sin login (solo dev) | localStorage `ecoport-v1-guest` |
+
+Si ves el banner *"Base de datos pendiente"*, la migración SQL no se ha aplicado aún.
+
+## 7. Perfil al registrarse
+
+El trigger `on_auth_user_created` crea la fila en `profiles`. Si te registraste antes de aplicar la migración, ejecuta manualmente:
+
+```sql
+INSERT INTO public.profiles (id, email, default_currency)
+SELECT id, email, 'EUR' FROM auth.users WHERE email = 'tu@email.com'
+ON CONFLICT (id) DO NOTHING;
+```

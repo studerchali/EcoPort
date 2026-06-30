@@ -1,3 +1,7 @@
+/**
+ * Sesión Supabase Auth: email, OAuth (Google/Apple) y signOut global.
+ * FinanceStoreSync (main.tsx) reacciona a cambios de user para aislar datos por cuenta.
+ */
 import {
   createContext,
   useCallback,

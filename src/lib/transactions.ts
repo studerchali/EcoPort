@@ -1,3 +1,8 @@
+/**
+ * Capa de acceso a Supabase para transacciones (libro mayor inmutable).
+ * Solo INSERT + SELECT; correcciones y bajas vía reversal_of_id (ver reverseTransaction).
+ * RLS en Postgres garantiza que user_id = auth.uid().
+ */
 import { supabase } from '@/lib/supabase'
 import type {
   CreateTransactionInput,

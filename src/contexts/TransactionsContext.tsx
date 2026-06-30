@@ -1,3 +1,8 @@
+/**
+ * Puente entre UI y datos de ingresos/gastos.
+ * - Usuario real (no demo): Supabase transactions + RLS por user_id.
+ * - Demo / invitado / dev público: Zustand local con clave por cuenta (user-storage).
+ */
 import {
   createContext,
   useCallback,

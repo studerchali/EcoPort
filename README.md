@@ -1,141 +1,146 @@
 # EcoPort
 
-**EcoPort** es una aplicación web de finanzas personales: ingresos, gastos, balance, inversiones y transacciones sincronizadas con Supabase. Diseñada como PWA instalable, con modo offline y datos de demostración para desarrollo.
+**EcoPort** es una aplicación web de finanzas personales: ingresos, gastos, balance, inversiones y transacciones. PWA instalable con sincronización en Supabase, datos aislados por cuenta y modo privacidad para ocultar montos sensibles.
 
-**Versión:** 0.1.0
+**Versión:** 1.0.0 · **Producción:** [ecoport-ashy.vercel.app](https://ecoport-ashy.vercel.app)
 
 ## Stack tecnológico
 
 | Capa | Tecnología |
 |------|------------|
-| Frontend | Vite, React 19, TypeScript |
+| Frontend | Vite 8, React 19, TypeScript |
 | Estilos | Tailwind CSS 4, shadcn/ui |
 | Gráficos | Recharts |
 | Estado | Zustand + React Context |
 | Backend | Supabase (Auth, PostgreSQL, RLS) |
+| Deploy | Vercel |
 | PWA | vite-plugin-pwa |
 
 ## Características
 
 - Dashboard con KPIs y gráficos mensuales
-- Gestión de ingresos y gastos con formularios validados
-- Libro de transacciones unificado con búsqueda y filtros
-- Balance derivado en tiempo real (nunca almacenado manualmente en la UI)
+- Ingresos, gastos y libro de transacciones unificado
+- Balance derivado en tiempo real desde `calculations.ts`
+- Inversiones con importación CSV (IBKR)
 - Autenticación email y OAuth (Google / Apple)
-- Transacciones inmutables en Supabase con patrón de reversión
+- **Datos por usuario:** RLS en Supabase + localStorage aislado por cuenta
+- **Modo privacidad:** oculta montos y muestra porcentajes donde aplica
 - Importación / exportación JSON y CSV
-- Modo desarrollo sin login (`VITE_ALLOW_PUBLIC_ACCESS`)
+- Cuenta demo para explorar sin datos reales
 
 ## Inicio rápido
 
 ### Requisitos
 
 - Node.js 20+
-- Cuenta en [Supabase](https://supabase.com) (para sync en la nube)
+- Proyecto en [Supabase](https://supabase.com)
 
 ### Instalación
 
 ```bash
-git clone https://github.com/TU_USUARIO/EcoPort.git
+git clone https://github.com/studerchali/EcoPort.git
 cd EcoPort
 npm install
 cp .env.example .env.local
 ```
 
-Edita `.env.local` con tus credenciales Supabase (ver [docs/SUPABASE.md](docs/SUPABASE.md)).
+Edita `.env.local` con tus credenciales (ver [docs/SUPABASE.md](docs/SUPABASE.md)).
 
 ```bash
 npm run dev
 ```
 
-Abre [http://localhost:5174](http://localhost:5174) (Vite usa el siguiente puerto libre si 5174 está ocupado).
+Abre [http://localhost:5174](http://localhost:5174).
 
-### Otros comandos
+### Comandos
 
 ```bash
-npm run build      # Build de producción
-npm run preview    # Vista previa del build
-npm run lint       # Linter (oxlint)
+npm run dev          # Desarrollo
+npm run build        # Build de producción
+npm run preview      # Vista previa del build
+npm run lint         # Linter (oxlint)
+npm run setup:demo   # Crear cuenta demo en Supabase Auth
+npm run generate:seed # Regenerar seed desde Excel (local)
 ```
-
-## Despliegue en producción
-
-EcoPort está preparado para Vercel con code splitting, PWA, `vercel.json` y variables de entorno documentadas.
-
-**Guía completa paso a paso:** [docs/DEPLOY.md](docs/DEPLOY.md)
-
-Variables obligatorias en Vercel:
-
-| Variable | Descripción |
-|----------|-------------|
-| `VITE_SUPABASE_URL` | URL del proyecto Supabase |
-| `VITE_SUPABASE_ANON_KEY` | Clave pública anon |
-| `VITE_APP_URL` | URL de producción (`https://tu-app.vercel.app`) |
-| `VITE_ALLOW_PUBLIC_ACCESS` | `false` en producción |
 
 ## Configuración de Supabase
 
 1. Crea un proyecto en Supabase.
-2. Ejecuta `supabase/migrations/001_initial_schema.sql` en el SQL Editor.
-3. Configura las variables en `.env.local`.
-4. Añade `http://localhost:5174/auth/callback` como redirect URL en Authentication.
+2. Ejecuta `supabase/migrations/001_initial_schema.sql` en el **SQL Editor**.
+3. Configura variables en `.env.local` o Vercel.
+4. Añade redirect URLs en Authentication:
+   - `http://localhost:5174/auth/callback`
+   - `https://tu-dominio.vercel.app/auth/callback`
 
 Guía detallada: [docs/SUPABASE.md](docs/SUPABASE.md)
 
+## Despliegue en Vercel
+
+Guía paso a paso: [docs/DEPLOY.md](docs/DEPLOY.md)
+
+| Variable | Producción |
+|----------|------------|
+| `VITE_SUPABASE_URL` | URL del proyecto |
+| `VITE_SUPABASE_ANON_KEY` | Clave anon (pública) |
+| `VITE_APP_URL` | URL de Vercel |
+| `VITE_ALLOW_PUBLIC_ACCESS` | `false` |
+| `VITE_DEMO_*` | Opcional, para botón demo |
+
 ## Seguridad
 
-- Las claves viven **solo** en `.env.local` (ignorado por Git).
-- No se incluye `service_role` en el frontend.
-- Exportaciones personales (`.xlsx`, `.csv`) están en `.gitignore`.
+- Claves solo en variables de entorno (`.env.local` / Vercel).
+- **Nunca** `service_role` en el frontend.
+- RLS activo en `profiles`, `transactions`, `investments`, `categories`, `balances`.
+- `.xlsx` / `.csv` personales ignorados por Git.
 
 Más información: [docs/SECURITY.md](docs/SECURITY.md)
 
-## Rutas principales
+## Rutas
 
 | Ruta | Descripción |
 |------|-------------|
-| `/` | Dashboard |
-| `/ingresos` | Ingresos |
-| `/gastos` | Gastos |
-| `/transacciones` | Libro unificado |
-| `/balance` | Balance mensual y cuentas |
-| `/inversiones` | Portfolio |
-| `/login` | Autenticación |
+| `/` | Landing |
+| `/login`, `/register` | Autenticación |
+| `/app` | Dashboard |
+| `/app/ingresos` | Ingresos |
+| `/app/gastos` | Gastos |
+| `/app/transacciones` | Libro unificado |
+| `/app/balance` | Balance |
+| `/app/inversiones` | Portfolio |
 
 ## Estructura del proyecto
 
 ```
-├── docs/                 # Documentación (Supabase, seguridad)
-├── public/               # Assets estáticos y PWA
-├── scripts/              # Utilidades de desarrollo
+├── docs/                 # Supabase, seguridad, deploy
+├── public/               # PWA e iconos
+├── scripts/              # Seed, demo, utilidades
 ├── src/
 │   ├── components/       # UI, formularios, gráficos
-│   ├── contexts/         # Auth, transacciones
-│   ├── data/             # Seed de demostración
-│   ├── hooks/            # Selectores financieros
+│   ├── contexts/         # Auth, transacciones, inversiones
+│   ├── hooks/            # Selectores y privacidad
 │   ├── lib/              # Cálculos, Supabase, mappers
-│   ├── pages/            # Vistas de la app
-│   ├── store/            # Zustand (settings, inversiones)
+│   ├── pages/            # Vistas
+│   ├── store/            # Zustand (preferencias por usuario)
 │   └── types/            # TypeScript
-└── supabase/migrations/  # Esquema SQL
+└── supabase/migrations/  # Esquema SQL + RLS
 ```
 
-## Estado actual (v0.1.0)
+## Estado del proyecto (v1.0.0)
 
-- [x] UI completa con Dashboard, ingresos, gastos, balance, inversiones
-- [x] Integración Supabase Auth
-- [x] Esquema DB con RLS y transacciones inmutables
-- [x] Sync de transacciones vía `TransactionsContext`
-- [x] Balance derivado desde `calculations.ts`
+- [x] UI completa: Dashboard, ingresos, gastos, balance, inversiones
+- [x] Supabase Auth (email + OAuth opcional)
+- [x] Transacciones inmutables con RLS
+- [x] Datos aislados por cuenta (Supabase + localStorage por scope)
+- [x] Importación CSV IBKR
+- [x] Modo privacidad (ocultar montos)
 - [x] PWA instalable
-- [x] Sync de inversiones con Supabase
-- [x] Preparado para despliegue en Vercel
-- [ ] Perfil y preferencias de usuario
+- [x] Despliegue en Vercel
 - [ ] Tests automatizados
+- [ ] Perfil de usuario en Supabase (preferencias en nube)
 
 ## Desarrollo con agentes
 
-Consulta [AGENTS.md](AGENTS.md) para flujos de iteración con agentes especializados.
+Consulta [AGENTS.md](AGENTS.md) para flujos de iteración especializados.
 
 ## Licencia
 

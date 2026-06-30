@@ -1,3 +1,7 @@
+/**
+ * Orquestación de ingresos/gastos: validación → Supabase (inmutable) → mappers.
+ * Las correcciones anulan la fila original e insertan una nueva (patrón reversal).
+ */
 import {
   createTransaction,
   getActiveTransactions,

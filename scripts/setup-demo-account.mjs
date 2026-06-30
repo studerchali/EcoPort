@@ -38,7 +38,11 @@ const env = { ...loadEnvFile('.env'), ...loadEnvFile('.env.local') }
 const url = env.VITE_SUPABASE_URL
 const anonKey = env.VITE_SUPABASE_ANON_KEY
 const email = env.VITE_DEMO_EMAIL || 'demo@ecoport.io'
-const password = env.VITE_DEMO_PASSWORD || 'EcoPortDemo2026!'
+const password = env.VITE_DEMO_PASSWORD
+if (!password) {
+  console.error('Define VITE_DEMO_PASSWORD en .env.local antes de ejecutar setup:demo')
+  process.exit(1)
+}
 
 if (!url || !anonKey) {
   console.error('Faltan VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY en .env.local')

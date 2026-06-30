@@ -71,7 +71,7 @@ npm run setup:demo
 
 3. Añade las variables `VITE_DEMO_*` en Vercel y redeploy.
 
-Credenciales por defecto: `demo@ecoport.io` / `EcoPortDemo2026!`
+Credenciales: las que definas en `VITE_DEMO_EMAIL` y `VITE_DEMO_PASSWORD` (nunca las subas a Git).
 
 > Las variables `VITE_*` se inyectan en **tiempo de build**. Tras cambiarlas, haz **Redeploy**.
 

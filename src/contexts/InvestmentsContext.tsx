@@ -1,3 +1,7 @@
+/**
+ * Portfolio e importación CSV (IBKR). Usuarios autenticados → tabla investments en Supabase.
+ * Cuenta demo e invitados → holdings en localStorage aislado por scope.
+ */
 import {
   createContext,
   useCallback,

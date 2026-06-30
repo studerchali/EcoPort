@@ -1,3 +1,7 @@
+/**
+ * Estado local (Zustand + persist). Usuarios autenticados: solo preferencias.
+ * Transacciones e inversiones reales viven en Supabase vía contexts.
+ */
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type {
