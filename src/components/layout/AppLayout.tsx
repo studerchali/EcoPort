@@ -10,6 +10,8 @@ import {
   Moon,
   Sun,
   Plus,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -21,6 +23,7 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { useFinanceStore } from '@/store/financeStore'
+import { usePrivacyFormat } from '@/hooks/usePrivacyFormat'
 import { DevModeBanner } from '@/components/auth/DevModeBanner'
 import { DemoBanner } from '@/components/auth/DemoBanner'
 import { SchemaSetupBanner } from '@/components/auth/SchemaSetupBanner'
@@ -55,6 +58,7 @@ export function AppLayout() {
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const selectedYear = useFinanceStore((s) => s.selectedYear)
   const setSelectedYear = useFinanceStore((s) => s.setSelectedYear)
+  const { hideSensitiveData, toggleHideSensitiveData } = usePrivacyFormat()
 
   const toggleDark = () => {
     setDark(!dark)
@@ -157,6 +161,28 @@ export function AppLayout() {
                 <Sun className="h-4 w-4" aria-hidden="true" />
               ) : (
                 <Moon className="h-4 w-4" aria-hidden="true" />
+              )}
+            </Button>
+            <Button
+              variant={hideSensitiveData ? 'default' : 'outline'}
+              size="icon"
+              onClick={toggleHideSensitiveData}
+              aria-label={
+                hideSensitiveData
+                  ? 'Mostrar montos'
+                  : 'Ocultar montos sensibles'
+              }
+              aria-pressed={hideSensitiveData}
+              title={
+                hideSensitiveData
+                  ? 'Mostrar montos'
+                  : 'Ocultar información sensible'
+              }
+            >
+              {hideSensitiveData ? (
+                <EyeOff className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Eye className="h-4 w-4" aria-hidden="true" />
               )}
             </Button>
             <UserMenu />

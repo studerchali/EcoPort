@@ -23,7 +23,9 @@ import { useState } from 'react'
 import { BalanceSectionNav } from '@/components/balance/BalanceSectionNav'
 import { useFinanceSelectors } from '@/hooks/useFinanceSelectors'
 import { useFinanceStore } from '@/store/financeStore'
-import { formatCurrency, formatDate } from '@/lib/format'
+import { formatDate } from '@/lib/format'
+import { usePrivacyFormat } from '@/hooks/usePrivacyFormat'
+import { HIDDEN_NUMBER } from '@/lib/format'
 import { cn } from '@/lib/utils'
 
 const sectionTitles: Record<string, string> = {
@@ -39,6 +41,7 @@ export function BalancePage() {
   const debts = useFinanceStore((s) => s.debts)
   const balanceHistory = useFinanceStore((s) => s.balanceHistory)
   const selectedYear = useFinanceStore((s) => s.selectedYear)
+  const { hideSensitiveData, formatMoney, formatShare } = usePrivacyFormat()
 
   const totalDebt = debts.reduce((s, d) => s + d.amount, 0)
   const totalBalance = computedAccounts.reduce((s, a) => s + a.computedEUR, 0)
@@ -133,13 +136,13 @@ export function BalancePage() {
                           <CurrencyAmount amount={row.balanceEUR} variant="balance" />
                         </TableCell>
                         <TableCell className="text-right text-muted-foreground">
-                          {row.incomeUSD > 0 ? formatCurrency(row.incomeUSD, 'USD') : '—'}
+                          {row.incomeUSD > 0 ? formatMoney(row.incomeUSD, 'USD') : '—'}
                         </TableCell>
                         <TableCell className="text-right text-muted-foreground">
-                          {row.expenseUSD > 0 ? formatCurrency(row.expenseUSD, 'USD') : '—'}
+                          {row.expenseUSD > 0 ? formatMoney(row.expenseUSD, 'USD') : '—'}
                         </TableCell>
                         <TableCell className="text-right text-muted-foreground">
-                          {formatCurrency(row.balanceUSD, 'USD')}
+                          {formatMoney(row.balanceUSD, 'USD')}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -177,7 +180,7 @@ export function BalancePage() {
                       <TableRow key={acc.account}>
                         <TableCell className="font-medium">{acc.account}</TableCell>
                         <TableCell className="text-right">
-                          {formatCurrency(acc.amount, acc.currency)}
+                          {formatMoney(acc.amount, acc.currency)}
                         </TableCell>
                         <TableCell>{acc.currency}</TableCell>
                         <TableCell className="text-right">
@@ -255,8 +258,28 @@ export function BalancePage() {
                     <LineChart data={historyChart}>
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                      <YAxis tick={{ fontSize: 12 }} />
-                      <Tooltip />
+                      <YAxis
+                        tick={{ fontSize: 12 }}
+                        tickFormatter={
+                          hideSensitiveData ? () => HIDDEN_NUMBER : (v) => formatMoney(Number(v))
+                        }
+                      />
+                      <Tooltip
+                        formatter={(value, name) => {
+                          const num = Number(value)
+                          if (hideSensitiveData) {
+                            const max = Math.max(
+                              ...historyChart.flatMap((h) => [
+                                h.balanceEUR,
+                                h.deudaEUR,
+                                h.balanceUSD,
+                              ])
+                            )
+                            return formatShare(Math.abs(num), max || 1)
+                          }
+                          return formatMoney(num, name === 'Balance USD' ? 'USD' : 'EUR')
+                        }}
+                      />
                       <Legend />
                       <Line type="monotone" dataKey="balanceEUR" name="Balance EUR" stroke="hsl(142 76% 36%)" />
                       <Line type="monotone" dataKey="deudaEUR" name="Deuda EUR" stroke="hsl(0 72% 51%)" />

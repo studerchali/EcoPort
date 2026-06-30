@@ -22,6 +22,8 @@ interface FinanceState extends FinanceData {
   savedAccounts: string[]
   selectedYear: number
   storageScope: StorageScope
+  hideSensitiveData: boolean
+  toggleHideSensitiveData: () => void
   setSelectedYear: (year: number) => void
   rememberAccount: (account: string) => void
   addIncome: (income: Omit<Income, 'id'>) => void
@@ -65,6 +67,7 @@ function preferencesPartialize(state: FinanceState) {
     fixedIncome: state.fixedIncome,
     balanceHistory: state.balanceHistory,
     storageScope: state.storageScope,
+    hideSensitiveData: state.hideSensitiveData,
   }
 }
 
@@ -84,6 +87,10 @@ export const useFinanceStore = create<FinanceState>()(
       savedAccounts: seedData.savedAccounts ?? [],
       selectedYear: 2026,
       storageScope: 'guest' as StorageScope,
+      hideSensitiveData: false,
+
+      toggleHideSensitiveData: () =>
+        set((state) => ({ hideSensitiveData: !state.hideSensitiveData })),
 
       setSelectedYear: (year) => set({ selectedYear: year }),
 

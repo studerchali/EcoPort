@@ -13,7 +13,7 @@ import { BalanceTrendChart } from '@/components/charts/BalanceTrendChart'
 import { AccountChart } from '@/components/charts/AccountChart'
 import { useFinanceSelectors } from '@/hooks/useFinanceSelectors'
 import { useTransactions } from '@/contexts/TransactionsContext'
-import { formatCurrency } from '@/lib/format'
+import { usePrivacyFormat } from '@/hooks/usePrivacyFormat'
 import { useFinanceStore } from '@/store/financeStore'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -22,6 +22,7 @@ export function Dashboard() {
     useFinanceSelectors()
   const { loading } = useTransactions()
   const selectedYear = useFinanceStore((s) => s.selectedYear)
+  const { formatMoney } = usePrivacyFormat()
 
   if (loading) {
     return (
@@ -60,19 +61,19 @@ export function Dashboard() {
         <div className="grid gap-4 sm:grid-cols-3">
           <KpiCard
             title="Ingresos del mes"
-            value={formatCurrency(currentMonth.incomeEUR)}
+            value={formatMoney(currentMonth.incomeEUR)}
             icon={TrendingUp}
             variant="income"
           />
           <KpiCard
             title="Gastos del mes"
-            value={formatCurrency(currentMonth.expenseEUR)}
+            value={formatMoney(currentMonth.expenseEUR)}
             icon={TrendingDown}
             variant="expense"
           />
           <KpiCard
             title="Balance del mes"
-            value={formatCurrency(currentMonth.balanceEUR)}
+            value={formatMoney(currentMonth.balanceEUR)}
             icon={Wallet}
             variant="balance"
           />
@@ -86,19 +87,19 @@ export function Dashboard() {
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           <KpiCard
             title="Ingresos YTD"
-            value={formatCurrency(kpis.totalIncomeEUR)}
+            value={formatMoney(kpis.totalIncomeEUR)}
             icon={TrendingUp}
             variant="income"
           />
           <KpiCard
             title="Gastos YTD"
-            value={formatCurrency(kpis.totalExpenseEUR)}
+            value={formatMoney(kpis.totalExpenseEUR)}
             icon={TrendingDown}
             variant="expense"
           />
           <KpiCard
             title="Balance Neto"
-            value={formatCurrency(kpis.netBalanceEUR)}
+            value={formatMoney(kpis.netBalanceEUR)}
             icon={Wallet}
             variant="balance"
           />
@@ -107,16 +108,18 @@ export function Dashboard() {
             value={kpis.biggestCategory ?? '—'}
             subtitle={
               kpis.biggestCategory
-                ? formatCurrency(kpis.biggestCategoryAmount)
+                ? formatMoney(kpis.biggestCategoryAmount)
                 : undefined
             }
+            maskValue={false}
             icon={Tag}
             variant="expense"
           />
           <KpiCard
             title="Deuda total"
-            value={formatCurrency(kpis.totalDebtEUR)}
+            value={formatMoney(kpis.totalDebtEUR)}
             subtitle={`${kpis.activeAccounts} cuentas activas`}
+            maskSubtitle={false}
             icon={CreditCard}
             variant="neutral"
           />

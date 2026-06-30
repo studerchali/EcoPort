@@ -10,13 +10,16 @@ import {
 } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import type { MonthlyBalanceRow } from '@/lib/calculations'
-import { formatCurrency } from '@/lib/format'
+import { usePrivacyFormat } from '@/hooks/usePrivacyFormat'
+import { HIDDEN_NUMBER } from '@/lib/format'
 
 interface MonthlyChartProps {
   data: MonthlyBalanceRow[]
 }
 
 export function MonthlyChart({ data }: MonthlyChartProps) {
+  const { hideSensitiveData, formatMoney, formatShare } = usePrivacyFormat()
+
   const chartData = data.map((d) => ({
     name: d.month.slice(0, 3),
     ingresos: Math.round(d.incomeEUR * 100) / 100,
@@ -38,6 +41,10 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
     )
   }
 
+  const tickFormatter = hideSensitiveData
+    ? () => HIDDEN_NUMBER
+    : (v: number) => formatMoney(v)
+
   return (
     <Card>
       <CardHeader>
@@ -48,9 +55,20 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
             <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-            <YAxis tick={{ fontSize: 12 }} />
+            <YAxis tick={{ fontSize: 12 }} tickFormatter={tickFormatter} />
             <Tooltip
-              formatter={(value) => formatCurrency(Number(value))}
+              formatter={(value, _name, item) => {
+                const num = Number(value)
+                if (hideSensitiveData) {
+                  const payload = item.payload as {
+                    ingresos: number
+                    gastos: number
+                  }
+                  const monthTotal = payload.ingresos + payload.gastos
+                  return formatShare(num, monthTotal)
+                }
+                return formatMoney(num)
+              }}
               contentStyle={{ borderRadius: 8 }}
             />
             <Legend />

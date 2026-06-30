@@ -24,12 +24,13 @@ import {
   type BrokerParseResult,
 } from '@/lib/import-broker-csv'
 import { readFileAsText } from '@/lib/import-export'
-import { formatCurrency } from '@/lib/format'
+import { usePrivacyFormat } from '@/hooks/usePrivacyFormat'
 import { toast } from 'sonner'
 
 export function BrokerCsvImport() {
   const fileRef = useRef<HTMLInputElement>(null)
   const { importHoldings } = useInvestments()
+  const { formatMoney, formatUnits } = usePrivacyFormat()
 
   const [open, setOpen] = useState(false)
   const [result, setResult] = useState<BrokerParseResult | null>(null)
@@ -150,13 +151,13 @@ export function BrokerCsvImport() {
                           <TableRow key={i}>
                             <TableCell className="font-medium">{h.ticker}</TableCell>
                             <TableCell className="text-right">
-                              {h.units.toFixed(4)}
+                              {formatUnits(h.units)}
                             </TableCell>
                             <TableCell className="text-right">
-                              {formatCurrency(h.avgPrice, 'USD')}
+                              {formatMoney(h.avgPrice, 'USD')}
                             </TableCell>
                             <TableCell className="text-right">
-                              {formatCurrency(h.currentPrice, 'USD')}
+                              {formatMoney(h.currentPrice, 'USD')}
                             </TableCell>
                           </TableRow>
                         ))}

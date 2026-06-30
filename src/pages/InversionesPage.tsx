@@ -23,13 +23,15 @@ import { InvestmentForm } from '@/components/forms/InvestmentForm'
 import { BrokerCsvImport } from '@/components/inversiones/BrokerCsvImport'
 import { useFinanceSelectors } from '@/hooks/useFinanceSelectors'
 import { useInvestments } from '@/contexts/InvestmentsContext'
-import { formatCurrency, formatPercent } from '@/lib/format'
+import { usePrivacyFormat } from '@/hooks/usePrivacyFormat'
 import { cn } from '@/lib/utils'
 
 export function InversionesPage() {
   const { holdingMetrics, totalInvested, totalCurrentValue } =
     useFinanceSelectors()
   const { loading, deleteInvestment } = useInvestments()
+  const { hideSensitiveData, formatMoney, formatUnits, formatPercentValue } =
+    usePrivacyFormat()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -89,7 +91,7 @@ export function InversionesPage() {
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             ) : (
               <span className="text-2xl font-bold">
-                {formatCurrency(totalInvested, 'USD')}
+                {formatMoney(totalInvested, 'USD')}
               </span>
             )}
           </CardContent>
@@ -106,7 +108,7 @@ export function InversionesPage() {
             ) : (
               <>
                 <span className="text-2xl font-bold">
-                  {formatCurrency(totalCurrentValue, 'USD')}
+                  {formatMoney(totalCurrentValue, 'USD')}
                 </span>
                 <p
                   className={cn(
@@ -114,8 +116,14 @@ export function InversionesPage() {
                     totalPL >= 0 ? 'text-income' : 'text-expense'
                   )}
                 >
-                  {totalPL >= 0 ? '+' : ''}
-                  {formatCurrency(totalPL, 'USD')} ({formatPercent(totalPLPct)})
+                  {hideSensitiveData ? (
+                    formatPercentValue(totalPLPct)
+                  ) : (
+                    <>
+                      {totalPL >= 0 ? '+' : ''}
+                      {formatMoney(totalPL, 'USD')} ({formatPercentValue(totalPLPct)})
+                    </>
+                  )}
                 </p>
               </>
             )}
@@ -171,22 +179,23 @@ export function InversionesPage() {
                     <TableCell className="font-medium">{h.ticker}</TableCell>
                     <TableCell>{h.platform}</TableCell>
                     <TableCell className="text-right">
-                      {h.units.toFixed(4)}
+                      {formatUnits(h.units)}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(h.avgPrice, 'USD')}
+                      {formatMoney(h.avgPrice, 'USD')}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(h.currentPrice, 'USD')}
+                      {formatMoney(h.currentPrice, 'USD')}
                     </TableCell>
                     <TableCell className="text-right">
-                      {formatCurrency(h.currentValue, 'USD')}
+                      {formatMoney(h.currentValue, 'USD')}
                     </TableCell>
                     <TableCell className="text-right">
                       <CurrencyAmount
                         amount={h.profitLoss}
                         currency="USD"
                         variant={h.profitLoss >= 0 ? 'income' : 'expense'}
+                        shareOf={totalInvested}
                       />
                     </TableCell>
                     <TableCell>
@@ -209,13 +218,14 @@ export function InversionesPage() {
                 <TableRow className="bg-muted/50 font-semibold">
                   <TableCell colSpan={5}>TOTAL</TableCell>
                   <TableCell className="text-right">
-                    {formatCurrency(totalCurrentValue, 'USD')}
+                    {formatMoney(totalCurrentValue, 'USD')}
                   </TableCell>
                   <TableCell className="text-right">
                     <CurrencyAmount
                       amount={totalPL}
                       currency="USD"
                       variant={totalPL >= 0 ? 'income' : 'expense'}
+                      shareOf={totalInvested}
                     />
                   </TableCell>
                   <TableCell />

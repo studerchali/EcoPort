@@ -2,6 +2,9 @@ import { format, parseISO } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { Currency } from '@/types/finance'
 
+export const HIDDEN_AMOUNT = '••••••'
+export const HIDDEN_NUMBER = '•••'
+
 const currencySymbols: Record<Currency, string> = {
   EUR: '€',
   USD: '$',

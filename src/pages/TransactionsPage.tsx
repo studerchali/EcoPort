@@ -40,7 +40,7 @@ import { IncomeForm } from '@/components/forms/IncomeForm'
 import { ExpenseForm } from '@/components/forms/ExpenseForm'
 import { CurrencyAmount } from '@/components/shared/CurrencyAmount'
 import { KpiCard } from '@/components/dashboard/KpiCard'
-import { formatCurrency } from '@/lib/format'
+import { usePrivacyFormat } from '@/hooks/usePrivacyFormat'
 import { useTransactions } from '@/contexts/TransactionsContext'
 import { useFinanceStore } from '@/store/financeStore'
 import { useFinanceSelectors } from '@/hooks/useFinanceSelectors'
@@ -71,6 +71,7 @@ export function TransactionsPage() {
   } = useTransactions()
   const selectedYear = useFinanceStore((s) => s.selectedYear)
   const { kpis } = useFinanceSelectors()
+  const { formatMoney } = usePrivacyFormat()
   const accountSuggestions = useAccountSuggestions()
 
   const categoryOptions = useMemo(() => {
@@ -203,19 +204,19 @@ export function TransactionsPage() {
       <div className="grid gap-4 sm:grid-cols-3">
         <KpiCard
           title="Ingresos YTD"
-          value={formatCurrency(kpis.totalIncomeEUR)}
+          value={formatMoney(kpis.totalIncomeEUR)}
           icon={TrendingUp}
           variant="income"
         />
         <KpiCard
           title="Gastos YTD"
-          value={formatCurrency(kpis.totalExpenseEUR)}
+          value={formatMoney(kpis.totalExpenseEUR)}
           icon={TrendingDown}
           variant="expense"
         />
         <KpiCard
           title="Balance YTD"
-          value={formatCurrency(kpis.netBalanceEUR)}
+          value={formatMoney(kpis.netBalanceEUR)}
           icon={Wallet}
           variant="balance"
         />
