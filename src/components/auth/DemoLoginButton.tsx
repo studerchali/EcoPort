@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/contexts/AuthContext'
 import { getDemoCredentials, isDemoAccountEnabled } from '@/lib/env'
+import { loadDemoSeedData } from '@/lib/demo'
 import { APP_ROUTES } from '@/lib/routes'
 import { cn } from '@/lib/utils'
 import type { ComponentProps } from 'react'
@@ -45,6 +46,7 @@ export function DemoLoginButton({
         )
         return
       }
+      loadDemoSeedData()
       toast.success('Entrando con cuenta demo')
       if (onSuccess) {
         onSuccess()

@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { isDemoUser } from '@/lib/demo'
 import { investmentToHolding } from '@/lib/mappers'
 import {
   createInvestment,
@@ -47,7 +48,7 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
   const updateHoldingLocal = useFinanceStore((s) => s.updateHolding)
   const deleteHoldingLocal = useFinanceStore((s) => s.deleteHolding)
 
-  const isSupabaseMode = Boolean(user)
+  const isSupabaseMode = Boolean(user) && !isDemoUser(user)
 
   const [investments, setInvestments] = useState<Investment[]>([])
   const [loading, setLoading] = useState(false)

@@ -22,6 +22,9 @@ import {
 import { cn } from '@/lib/utils'
 import { useFinanceStore } from '@/store/financeStore'
 import { DevModeBanner } from '@/components/auth/DevModeBanner'
+import { DemoBanner } from '@/components/auth/DemoBanner'
+import { useAuth } from '@/contexts/AuthContext'
+import { isDemoUser } from '@/lib/demo'
 import { UserMenu } from '@/components/auth/UserMenu'
 import { isPublicAccessEnabled } from '@/lib/env'
 import { ImportExportMenu } from '@/components/shared/ImportExportMenu'
@@ -45,6 +48,7 @@ function isNavActive(pathname: string, path: string): boolean {
 }
 
 export function AppLayout() {
+  const { user } = useAuth()
   const location = useLocation()
   const [dark, setDark] = useState(false)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
@@ -67,6 +71,7 @@ export function AppLayout() {
         Saltar al contenido
       </a>
       {publicAccess && <DevModeBanner />}
+      {!publicAccess && isDemoUser(user) && <DemoBanner />}
       <div className="flex flex-1">
       <aside
         className="hidden w-64 flex-col border-r border-border bg-card lg:flex"

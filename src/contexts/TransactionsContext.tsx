@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
+import { isDemoUser, loadDemoSeedData } from '@/lib/demo'
 import { splitTransactions, toUnifiedTransaction } from '@/lib/mappers'
 import {
   addExpenseRecord,
@@ -54,7 +55,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   const deleteIncomeLocal = useFinanceStore((s) => s.deleteIncome)
   const deleteExpenseLocal = useFinanceStore((s) => s.deleteExpense)
 
-  const isSupabaseMode = Boolean(user)
+  const isSupabaseMode = Boolean(user) && !isDemoUser(user)
 
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(false)
@@ -73,6 +74,12 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
       setLoading(false)
     }
   }, [isSupabaseMode])
+
+  useEffect(() => {
+    if (user && isDemoUser(user)) {
+      loadDemoSeedData()
+    }
+  }, [user])
 
   useEffect(() => {
     if (isSupabaseMode) {
