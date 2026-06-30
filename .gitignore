@@ -47,3 +47,5 @@ coverage/
 
 # PWA dev
 dev-dist/
+.vercel
+.env*

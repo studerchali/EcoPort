@@ -26,15 +26,23 @@ import { UserMenu } from '@/components/auth/UserMenu'
 import { isPublicAccessEnabled } from '@/lib/env'
 import { ImportExportMenu } from '@/components/shared/ImportExportMenu'
 import { QuickAddDialog } from '@/components/shared/QuickAddDialog'
+import { APP_ROUTES } from '@/lib/routes'
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/ingresos', label: 'Ingresos', icon: TrendingUp },
-  { path: '/gastos', label: 'Gastos', icon: TrendingDown },
-  { path: '/transacciones', label: 'Transacciones', icon: List },
-  { path: '/balance', label: 'Balance', icon: Scale },
-  { path: '/inversiones', label: 'Inversiones', icon: PieChart },
+  { path: APP_ROUTES.dashboard, label: 'Dashboard', icon: LayoutDashboard },
+  { path: APP_ROUTES.ingresos, label: 'Ingresos', icon: TrendingUp },
+  { path: APP_ROUTES.gastos, label: 'Gastos', icon: TrendingDown },
+  { path: APP_ROUTES.transacciones, label: 'Transacciones', icon: List },
+  { path: APP_ROUTES.balance, label: 'Balance', icon: Scale },
+  { path: APP_ROUTES.inversiones, label: 'Inversiones', icon: PieChart },
 ]
+
+function isNavActive(pathname: string, path: string): boolean {
+  if (path === APP_ROUTES.dashboard) {
+    return pathname === APP_ROUTES.dashboard
+  }
+  return pathname.startsWith(path)
+}
 
 export function AppLayout() {
   const location = useLocation()
@@ -65,18 +73,20 @@ export function AppLayout() {
         aria-label="Barra lateral"
       >
         <div className="border-b border-border p-6">
-          <h1 className="text-xl font-bold text-primary">EcoPort</h1>
-          <p className="text-xs text-muted-foreground">Finanzas personales</p>
+          <Link to={APP_ROUTES.dashboard}>
+            <h1 className="text-xl font-bold text-primary">EcoPort</h1>
+            <p className="text-xs text-muted-foreground">Finanzas personales</p>
+          </Link>
         </div>
         <nav className="flex-1 space-y-1 p-4" aria-label="Navegación principal">
           {navItems.map(({ path, label, icon: Icon }) => (
             <Link
               key={path}
               to={path}
-              aria-current={location.pathname === path ? 'page' : undefined}
+              aria-current={isNavActive(location.pathname, path) ? 'page' : undefined}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
-                location.pathname === path
+                isNavActive(location.pathname, path)
                   ? 'bg-primary/10 text-primary'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
@@ -91,7 +101,9 @@ export function AppLayout() {
       <div className="flex flex-1 flex-col">
         <header className="sticky top-0 z-40 flex items-center justify-between border-b border-border bg-card/80 px-4 py-3 backdrop-blur-sm lg:px-6">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-semibold lg:hidden">EcoPort</h2>
+            <Link to={APP_ROUTES.dashboard} className="text-lg font-semibold lg:hidden">
+              EcoPort
+            </Link>
             <Select
               value={String(selectedYear)}
               onValueChange={(v: string) => setSelectedYear(Number(v))}
@@ -160,10 +172,10 @@ export function AppLayout() {
             <Link
               key={path}
               to={path}
-              aria-current={location.pathname === path ? 'page' : undefined}
+              aria-current={isNavActive(location.pathname, path) ? 'page' : undefined}
               className={cn(
                 'flex flex-1 flex-col items-center gap-1 py-2 text-xs',
-                location.pathname === path
+                isNavActive(location.pathname, path)
                   ? 'text-primary'
                   : 'text-muted-foreground'
               )}

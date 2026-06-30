@@ -56,7 +56,7 @@ export function UserMenu() {
       }
       setOpen(false)
       toast.success('Sesión cerrada')
-      navigate('/login', { replace: true })
+      navigate('/', { replace: true })
     } finally {
       setLoggingOut(false)
     }

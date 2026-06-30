@@ -9,6 +9,7 @@ import { AuthLayout } from '@/components/auth/AuthLayout'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { AuthError } from '@/components/auth/AuthError'
 import { useAuth } from '@/contexts/AuthContext'
+import { APP_ROUTES } from '@/lib/routes'
 
 export function RegisterPage() {
   const { signUpWithEmail, user } = useAuth()
@@ -22,7 +23,7 @@ export function RegisterPage() {
   const [success, setSuccess] = useState(false)
 
   useEffect(() => {
-    if (user && !success) navigate('/', { replace: true })
+    if (user && !success) navigate(APP_ROUTES.dashboard, { replace: true })
   }, [user, success, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {

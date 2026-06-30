@@ -4,7 +4,11 @@ import { Toaster } from '@/components/ui/sonner'
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { PageLoader } from '@/components/shared/PageLoader'
+import { APP_BASE, APP_ROUTES } from '@/lib/routes'
 
+const LandingPage = lazy(() =>
+  import('@/pages/LandingPage').then((m) => ({ default: m.LandingPage }))
+)
 const Dashboard = lazy(() =>
   import('@/pages/Dashboard').then((m) => ({ default: m.Dashboard }))
 )
@@ -59,6 +63,14 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route
+          index
+          element={
+            <LazyPage>
+              <LandingPage />
+            </LazyPage>
+          }
+        />
+        <Route
           path="login"
           element={
             <LazyPage>
@@ -101,7 +113,7 @@ export default function App() {
           />
         )}
 
-        <Route element={<ProtectedRoute />}>
+        <Route path={APP_BASE} element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route
               index
@@ -153,6 +165,13 @@ export default function App() {
             />
           </Route>
         </Route>
+
+        {/* Rutas legacy → redirigir a /app */}
+        <Route path="ingresos" element={<Navigate to={APP_ROUTES.ingresos} replace />} />
+        <Route path="gastos" element={<Navigate to={APP_ROUTES.gastos} replace />} />
+        <Route path="transacciones" element={<Navigate to={APP_ROUTES.transacciones} replace />} />
+        <Route path="balance" element={<Navigate to={APP_ROUTES.balance} replace />} />
+        <Route path="inversiones" element={<Navigate to={APP_ROUTES.inversiones} replace />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

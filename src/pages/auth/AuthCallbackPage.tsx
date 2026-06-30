@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
+import { APP_ROUTES } from '@/lib/routes'
 
 /**
  * Maneja el redirect de OAuth (Google/Apple) y confirmación de email.
@@ -18,7 +19,7 @@ export function AuthCallbackPage() {
         setError(authError.message)
         return
       }
-      navigate('/', { replace: true })
+      navigate(APP_ROUTES.dashboard, { replace: true })
     }
 
     handleCallback()
