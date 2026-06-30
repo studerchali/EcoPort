@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   User,
   LogOut,
@@ -42,19 +42,24 @@ function getInitials(email: string, name?: string | null): string {
 
 export function UserMenu() {
   const { user, signOut } = useAuth()
+  const navigate = useNavigate()
   const [open, setOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
 
   const handleLogout = async () => {
     setLoggingOut(true)
-    const { error } = await signOut()
-    setLoggingOut(false)
-    if (error) {
-      toast.error(error.message)
-      return
+    try {
+      const { error } = await signOut()
+      if (error) {
+        toast.error(error.message)
+        return
+      }
+      setOpen(false)
+      toast.success('Sesión cerrada')
+      navigate('/login', { replace: true })
+    } finally {
+      setLoggingOut(false)
     }
-    toast.success('Sesión cerrada')
-    setOpen(false)
   }
 
   const handleLoginSuccess = () => {
