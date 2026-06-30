@@ -34,6 +34,7 @@ export function BrokerCsvImport() {
   const [open, setOpen] = useState(false)
   const [result, setResult] = useState<BrokerParseResult | null>(null)
   const [strategy, setStrategy] = useState<'merge' | 'replace'>('merge')
+  const [importing, setImporting] = useState(false)
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -42,6 +43,7 @@ export function BrokerCsvImport() {
     const text = await readFileAsText(file)
     const parsed = parseBrokerCsv(text)
     setResult(parsed)
+    setStrategy('merge')
     setOpen(true)
     e.target.value = ''
   }
@@ -52,6 +54,7 @@ export function BrokerCsvImport() {
       return
     }
     const holdings = toInvestmentHoldings(result.holdings)
+    setImporting(true)
     try {
       await importHoldings(holdings, strategy)
       toast.success(
@@ -61,6 +64,8 @@ export function BrokerCsvImport() {
       setResult(null)
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Error al importar')
+    } finally {
+      setImporting(false)
     }
   }
 
@@ -79,43 +84,44 @@ export function BrokerCsvImport() {
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[85vh] overflow-hidden sm:max-w-2xl">
-          <DialogHeader>
+        <DialogContent className="flex max-h-[min(85vh,640px)] max-w-[calc(100%-2rem)] flex-col gap-0 overflow-hidden p-0 sm:max-w-2xl">
+          <DialogHeader className="shrink-0 border-b px-5 py-4">
             <DialogTitle>Vista previa — Importación CSV</DialogTitle>
           </DialogHeader>
 
           {result && (
-            <div className="space-y-4 overflow-y-auto">
+            <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-5 py-4">
               <div className="flex items-start gap-2 rounded-lg border border-income/30 bg-income/5 p-3 text-sm">
                 <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-income" />
                 <div>
                   <p className="font-medium">Datos personales filtrados</p>
                   <p className="text-muted-foreground">
-                    Compatible con Informe de actividad IBKR (Posiciones abiertas)
-                    y export Open Positions. Solo ticker, unidades y precios;
-                    nombre, cuenta y demás datos sensibles se descartan.
+                    Solo ticker, unidades y precios. Nombre, cuenta y demás datos
+                    sensibles del informe IBKR se descartan.
                   </p>
                 </div>
               </div>
 
-              {result.warnings.map((w, i) => (
-                <div
-                  key={i}
-                  className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm"
-                >
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                  <p>{w}</p>
+              {result.warnings.length > 0 && (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-muted-foreground">
+                  <div className="mb-1 flex items-center gap-2 font-medium text-foreground">
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-amber-600" />
+                    Notas de importación
+                  </div>
+                  <ul className="list-inside list-disc space-y-0.5">
+                    {result.warnings.map((w, i) => (
+                      <li key={i}>{w}</li>
+                    ))}
+                  </ul>
                 </div>
-              ))}
+              )}
 
               {result.holdings.length > 0 && (
                 <>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary">
                       Broker:{' '}
-                      {result.broker === 'unknown'
-                        ? 'Desconocido'
-                        : 'IBKR'}
+                      {result.broker === 'unknown' ? 'Desconocido' : 'IBKR'}
                     </Badge>
                     {result.format !== 'unknown' && (
                       <Badge variant="outline">
@@ -143,7 +149,9 @@ export function BrokerCsvImport() {
                         {result.holdings.map((h, i) => (
                           <TableRow key={i}>
                             <TableCell className="font-medium">{h.ticker}</TableCell>
-                            <TableCell className="text-right">{h.units.toFixed(4)}</TableCell>
+                            <TableCell className="text-right">
+                              {h.units.toFixed(4)}
+                            </TableCell>
                             <TableCell className="text-right">
                               {formatCurrency(h.avgPrice, 'USD')}
                             </TableCell>
@@ -156,7 +164,7 @@ export function BrokerCsvImport() {
                     </Table>
                   </div>
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       variant={strategy === 'merge' ? 'default' : 'outline'}
                       size="sm"
@@ -177,15 +185,15 @@ export function BrokerCsvImport() {
             </div>
           )}
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>
+          <DialogFooter className="shrink-0 !mx-0 !mb-0 border-t bg-muted/50 px-5 py-4">
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={importing}>
               Cancelar
             </Button>
             <Button
               onClick={handleConfirm}
-              disabled={!result || result.holdings.length === 0}
+              disabled={importing || !result || result.holdings.length === 0}
             >
-              Confirmar importación
+              {importing ? 'Importando…' : 'Confirmar importación'}
             </Button>
           </DialogFooter>
         </DialogContent>
