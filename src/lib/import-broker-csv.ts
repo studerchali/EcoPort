@@ -137,7 +137,10 @@ function collectFilteredSensitiveFields(lines: string[]): string[] {
       section.includes('account information')
     ) {
       const fieldName = normalizeHeader(row[2] ?? '')
-      if (SENSITIVE_ACCOUNT_FIELDS.some((f) => fieldName.includes(f))) {
+      if (
+        fieldName !== 'nombre del campo' &&
+        SENSITIVE_ACCOUNT_FIELDS.some((f) => fieldName.includes(f))
+      ) {
         const label = row[2]?.trim()
         if (label && !filtered.includes(label)) filtered.push(label)
       }

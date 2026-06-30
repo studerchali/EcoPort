@@ -35,6 +35,10 @@ interface InvestmentsContextValue {
     input: UpdateInvestmentInput
   ) => Promise<Investment>
   deleteInvestment: (id: string) => Promise<void>
+  importHoldings: (
+    holdings: Omit<InvestmentHolding, 'id'>[],
+    strategy: 'replace' | 'merge'
+  ) => Promise<void>
 }
 
 const InvestmentsContext = createContext<InvestmentsContextValue | undefined>(
@@ -47,6 +51,7 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
   const addHoldingLocal = useFinanceStore((s) => s.addHolding)
   const updateHoldingLocal = useFinanceStore((s) => s.updateHolding)
   const deleteHoldingLocal = useFinanceStore((s) => s.deleteHolding)
+  const importHoldingsLocal = useFinanceStore((s) => s.importHoldings)
 
   const isSupabaseMode = Boolean(user) && !isDemoUser(user)
 
@@ -160,6 +165,57 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
     [isSupabaseMode, deleteHoldingLocal, refresh]
   )
 
+  const importHoldingsFn = useCallback(
+    async (
+      holdings: Omit<InvestmentHolding, 'id'>[],
+      strategy: 'replace' | 'merge'
+    ) => {
+      if (!isSupabaseMode) {
+        importHoldingsLocal(holdings, strategy)
+        return
+      }
+
+      const existingRows = await getInvestments()
+
+      if (strategy === 'replace') {
+        for (const inv of existingRows) {
+          await deleteInvestment(inv.id)
+        }
+      }
+
+      const mergeBase =
+        strategy === 'merge' ? existingRows : []
+
+      for (const h of holdings) {
+        const existing = mergeBase.find(
+          (inv) => inv.asset === h.ticker && inv.platform === h.platform
+        )
+        if (existing) {
+          await updateInvestment(existing.id, {
+            asset: h.ticker,
+            platform: h.platform,
+            quantity: h.units,
+            buy_price: h.avgPrice,
+            current_price: h.currentPrice,
+            currency: 'USD',
+          })
+        } else {
+          await createInvestment({
+            asset: h.ticker,
+            platform: h.platform,
+            quantity: h.units,
+            buy_price: h.avgPrice,
+            current_price: h.currentPrice,
+            currency: 'USD',
+          })
+        }
+      }
+
+      await refresh()
+    },
+    [isSupabaseMode, importHoldingsLocal, refresh]
+  )
+
   const value = useMemo(
     () => ({
       investments,
@@ -171,6 +227,7 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
       addInvestment,
       updateInvestment: updateInvestmentFn,
       deleteInvestment: deleteInvestmentFn,
+      importHoldings: importHoldingsFn,
     }),
     [
       investments,
@@ -182,6 +239,7 @@ export function InvestmentsProvider({ children }: { children: ReactNode }) {
       addInvestment,
       updateInvestmentFn,
       deleteInvestmentFn,
+      importHoldingsFn,
     ]
   )
 

@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog'
 import { CurrencyAmount } from '@/components/shared/CurrencyAmount'
 import { InvestmentForm } from '@/components/forms/InvestmentForm'
+import { BrokerCsvImport } from '@/components/inversiones/BrokerCsvImport'
 import { useFinanceSelectors } from '@/hooks/useFinanceSelectors'
 import { useInvestments } from '@/contexts/InvestmentsContext'
 import { formatCurrency, formatPercent } from '@/lib/format'
@@ -54,23 +55,26 @@ export function InversionesPage() {
           <h2 className="text-2xl font-bold">Inversiones</h2>
           <p className="text-muted-foreground">Portfolio y valoración</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Añadir inversión
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
-            <DialogHeader>
-              <DialogTitle>Nueva inversión</DialogTitle>
-            </DialogHeader>
-            <InvestmentForm
-              compact
-              onSuccess={() => setDialogOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="flex flex-wrap gap-2">
+          <BrokerCsvImport />
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Añadir inversión
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+              <DialogHeader>
+                <DialogTitle>Nueva inversión</DialogTitle>
+              </DialogHeader>
+              <InvestmentForm
+                compact
+                onSuccess={() => setDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">

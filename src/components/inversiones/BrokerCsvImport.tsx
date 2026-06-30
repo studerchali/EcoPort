@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { useFinanceStore } from '@/store/financeStore'
+import { useInvestments } from '@/contexts/InvestmentsContext'
 import {
   parseBrokerCsv,
   toInvestmentHoldings,
@@ -29,7 +29,7 @@ import { toast } from 'sonner'
 
 export function BrokerCsvImport() {
   const fileRef = useRef<HTMLInputElement>(null)
-  const importHoldings = useFinanceStore((s) => s.importHoldings)
+  const { importHoldings } = useInvestments()
 
   const [open, setOpen] = useState(false)
   const [result, setResult] = useState<BrokerParseResult | null>(null)
@@ -46,18 +46,22 @@ export function BrokerCsvImport() {
     e.target.value = ''
   }
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!result || result.holdings.length === 0) {
       toast.error('No hay posiciones para importar')
       return
     }
     const holdings = toInvestmentHoldings(result.holdings)
-    importHoldings(holdings, strategy)
-    toast.success(
-      `${holdings.length} posición${holdings.length > 1 ? 'es' : ''} importada${holdings.length > 1 ? 's' : ''} desde IBKR`
-    )
-    setOpen(false)
-    setResult(null)
+    try {
+      await importHoldings(holdings, strategy)
+      toast.success(
+        `${holdings.length} posición${holdings.length > 1 ? 'es' : ''} importada${holdings.length > 1 ? 's' : ''} desde IBKR`
+      )
+      setOpen(false)
+      setResult(null)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Error al importar')
+    }
   }
 
   return (
@@ -69,9 +73,9 @@ export function BrokerCsvImport() {
         className="hidden"
         onChange={handleFile}
       />
-      <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
+      <Button variant="outline" onClick={() => fileRef.current?.click()}>
         <Upload className="mr-2 h-4 w-4" />
-        Importar CSV
+        Importar CSV IBKR
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
