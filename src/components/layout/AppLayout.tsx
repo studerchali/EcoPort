@@ -131,12 +131,12 @@ export function AppLayout() {
               </SelectContent>
             </Select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
             <Button
               variant="outline"
               size="icon"
               onClick={() => setQuickAddOpen(true)}
-              className="lg:hidden"
+              className="h-9 w-9 shrink-0 lg:hidden"
               aria-label="Añadir transacción"
             >
               <Plus className="h-4 w-4" aria-hidden="true" />
@@ -145,16 +145,19 @@ export function AppLayout() {
               variant="default"
               size="sm"
               onClick={() => setQuickAddOpen(true)}
-              className="hidden lg:flex"
+              className="hidden shrink-0 lg:flex"
             >
               <Plus className="mr-2 h-4 w-4" aria-hidden="true" />
               Añadir
             </Button>
-            <ImportExportMenu />
+            <div className="hidden shrink-0 md:block">
+              <ImportExportMenu />
+            </div>
             <Button
               variant="outline"
               size="icon"
               onClick={toggleDark}
+              className="h-9 w-9 shrink-0"
               aria-label={dark ? 'Activar modo claro' : 'Activar modo oscuro'}
             >
               {dark ? (
@@ -167,6 +170,7 @@ export function AppLayout() {
               variant={hideSensitiveData ? 'default' : 'outline'}
               size="icon"
               onClick={toggleHideSensitiveData}
+              className="h-9 w-9 shrink-0"
               aria-label={
                 hideSensitiveData
                   ? 'Mostrar montos'
