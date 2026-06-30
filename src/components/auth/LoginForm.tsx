@@ -8,6 +8,8 @@ import { Separator } from '@/components/ui/separator'
 import { OAuthButtons } from '@/components/auth/OAuthButtons'
 import { AuthError } from '@/components/auth/AuthError'
 import { useAuth } from '@/contexts/AuthContext'
+import { DemoLoginButton } from '@/components/auth/DemoLoginButton'
+import { isDemoAccountEnabled } from '@/lib/env'
 
 interface LoginFormProps {
   onSuccess?: () => void
@@ -36,6 +38,9 @@ export function LoginForm({ onSuccess, showRegisterLink = true }: LoginFormProps
 
   return (
     <div className="space-y-4">
+      {isDemoAccountEnabled() && (
+        <DemoLoginButton onSuccess={onSuccess} showHint />
+      )}
       <OAuthButtons onError={setError} />
       <div className="relative">
         <Separator />

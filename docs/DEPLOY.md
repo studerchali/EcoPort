@@ -52,8 +52,26 @@ En **Settings → Environment Variables**, añade:
 | `VITE_SUPABASE_ANON_KEY` | `eyJhbG...` (anon key) | Production, Preview |
 | `VITE_APP_URL` | `https://tu-proyecto.vercel.app` | Production |
 | `VITE_ALLOW_PUBLIC_ACCESS` | `false` | Production |
+| `VITE_DEMO_ENABLED` | `true` | Production, Preview |
+| `VITE_DEMO_EMAIL` | `demo@ecoport.io` | Production, Preview |
+| `VITE_DEMO_PASSWORD` | (ver abajo) | Production, Preview |
 
 Para **Preview** (PRs), puedes usar las mismas credenciales Supabase o un proyecto de staging.
+
+### Cuenta demo
+
+Permite a visitantes probar la app con un clic (landing y login).
+
+1. En Supabase → **Authentication → Providers → Email**, desactiva **Confirm email** (o confirma el usuario demo manualmente).
+2. En tu máquina, con `.env.local` configurado:
+
+```bash
+npm run setup:demo
+```
+
+3. Añade las variables `VITE_DEMO_*` en Vercel y redeploy.
+
+Credenciales por defecto: `demo@ecoport.io` / `EcoPortDemo2026!`
 
 > Las variables `VITE_*` se inyectan en **tiempo de build**. Tras cambiarlas, haz **Redeploy**.
 

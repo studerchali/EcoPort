@@ -3,6 +3,24 @@ export function isPublicAccessEnabled(): boolean {
   return import.meta.env.VITE_ALLOW_PUBLIC_ACCESS === 'true'
 }
 
+export interface DemoCredentials {
+  email: string
+  password: string
+}
+
+/** Credenciales de cuenta demo (solo si están configuradas en env). */
+export function getDemoCredentials(): DemoCredentials | null {
+  const email = import.meta.env.VITE_DEMO_EMAIL?.trim()
+  const password = import.meta.env.VITE_DEMO_PASSWORD
+  if (!email || !password) return null
+  return { email, password }
+}
+
+/** Muestra el botón de cuenta demo cuando está habilitado y hay credenciales. */
+export function isDemoAccountEnabled(): boolean {
+  return import.meta.env.VITE_DEMO_ENABLED === 'true' && getDemoCredentials() !== null
+}
+
 /** URL base de la app (producción: dominio Vercel). */
 export function getAppUrl(): string {
   const configured = import.meta.env.VITE_APP_URL

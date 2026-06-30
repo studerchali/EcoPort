@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "setup:demo": "node scripts/setup-demo-account.mjs"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.3.0",

@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { DemoLoginButton } from '@/components/auth/DemoLoginButton'
 
 export function LandingHeader() {
   return (
@@ -14,6 +15,11 @@ export function LandingHeader() {
           </span>
         </Link>
         <nav className="flex items-center gap-2 sm:gap-3" aria-label="Acciones de cuenta">
+          <DemoLoginButton
+            variant="ghost"
+            size="sm"
+            className="w-auto"
+          />
           <Button variant="ghost" size="sm" asChild>
             <Link to="/login">Iniciar sesión</Link>
           </Button>

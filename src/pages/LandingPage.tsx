@@ -15,6 +15,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { LandingHeader } from '@/components/landing/LandingHeader'
+import { DemoLoginButton } from '@/components/auth/DemoLoginButton'
+import { isDemoAccountEnabled } from '@/lib/env'
 import { useAuth } from '@/contexts/AuthContext'
 import { APP_ROUTES } from '@/lib/routes'
 
@@ -111,7 +113,7 @@ export function LandingPage() {
               instante, analizar categorías y seguir tus inversiones. Deja el
               Excel atrás.
             </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap">
               <Button size="lg" asChild className="w-full sm:w-auto">
                 <Link to="/register">
                   Crear cuenta gratis
@@ -126,6 +128,14 @@ export function LandingPage() {
               >
                 <Link to="/login">Ya tengo cuenta</Link>
               </Button>
+              {isDemoAccountEnabled() && (
+                <DemoLoginButton
+                  size="lg"
+                  variant="secondary"
+                  className="w-full sm:w-auto"
+                  showHint
+                />
+              )}
             </div>
           </div>
 
@@ -259,13 +269,16 @@ export function LandingPage() {
               Crea tu cuenta en menos de un minuto y accede al dashboard, tus
               transacciones y tu portfolio.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Button size="lg" asChild>
                 <Link to="/register">Crear cuenta</Link>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link to="/login">Iniciar sesión</Link>
               </Button>
+              {isDemoAccountEnabled() && (
+                <DemoLoginButton size="lg" className="w-full sm:w-auto" />
+              )}
             </div>
           </CardContent>
         </Card>
