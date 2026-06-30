@@ -12,14 +12,14 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { SavedAccountField } from '@/components/forms/SavedAccountField'
 import { useTransactions } from '@/contexts/TransactionsContext'
+import { normalizeAccountName } from '@/lib/accounts'
 import {
-  ACCOUNTS,
   EXPENSE_CATEGORIES,
   type Expense,
   type Currency,
   type ExpenseCategory,
-  type AccountName,
 } from '@/types/finance'
 import { cn } from '@/lib/utils'
 import { todayISO } from '@/lib/format'
@@ -35,32 +35,35 @@ export function ExpenseForm({ initial, onSuccess, compact }: ExpenseFormProps) {
   const [submitting, setSubmitting] = useState(false)
 
   const [date, setDate] = useState(initial?.date ?? todayISO())
-  const [category, setCategory] = useState<ExpenseCategory>(
-    initial?.category ?? 'Super'
+  const [category, setCategory] = useState<ExpenseCategory | string>(
+    initial?.category ?? 'Alimentación'
   )
   const [detail, setDetail] = useState(initial?.detail ?? '')
   const [amount, setAmount] = useState(String(initial?.amount ?? ''))
   const [currency, setCurrency] = useState<Currency>(initial?.currency ?? 'EUR')
-  const [paymentMethod, setPaymentMethod] = useState<AccountName>(
-    initial?.paymentMethod ?? 'Santander'
-  )
+  const [paymentMethod, setPaymentMethod] = useState(initial?.paymentMethod ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
+
+  const categoryOptions = EXPENSE_CATEGORIES.includes(category as ExpenseCategory)
+    ? EXPENSE_CATEGORIES
+    : [category as ExpenseCategory, ...EXPENSE_CATEGORIES]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const parsed = parseFloat(amount)
-    if (!parsed || parsed <= 0 || !detail.trim()) {
+    const accountName = normalizeAccountName(paymentMethod)
+    if (!parsed || parsed <= 0 || !detail.trim() || !accountName) {
       toast.error('Completa los campos obligatorios')
       return
     }
 
     const data = {
       date,
-      category,
+      category: category as ExpenseCategory,
       detail: detail.trim(),
       amount: parsed,
       currency,
-      paymentMethod,
+      paymentMethod: accountName,
       notes: notes.trim(),
     }
 
@@ -110,7 +113,7 @@ export function ExpenseForm({ initial, onSuccess, compact }: ExpenseFormProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {EXPENSE_CATEGORIES.map((c) => (
+              {categoryOptions.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
                 </SelectItem>
@@ -161,23 +164,14 @@ export function ExpenseForm({ initial, onSuccess, compact }: ExpenseFormProps) {
           </Select>
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <Label className={labelClass}>Método de pago</Label>
-          <Select
+          <Label htmlFor="exp-payment" className={labelClass}>Método de pago</Label>
+          <SavedAccountField
+            id="exp-payment"
+            className={fieldClass}
             value={paymentMethod}
-            onValueChange={(v: string) => setPaymentMethod(v as AccountName)}
+            onChange={setPaymentMethod}
             disabled={submitting}
-          >
-            <SelectTrigger className={fieldClass}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ACCOUNTS.map((a) => (
-                <SelectItem key={a} value={a}>
-                  {a}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </div>
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="exp-notes">Notas</Label>

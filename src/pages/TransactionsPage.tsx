@@ -46,26 +46,16 @@ import { useFinanceStore } from '@/store/financeStore'
 import { useFinanceSelectors } from '@/hooks/useFinanceSelectors'
 import { formatDate } from '@/lib/format'
 import { filterByYear, filterByMonthYear } from '@/lib/calculations'
+import { categoryBadgeClass } from '@/lib/categoryColors'
+import { useAccountSuggestions } from '@/hooks/useAccountSuggestions'
 import {
-  ACCOUNTS,
   EXPENSE_CATEGORIES,
+  INCOME_SOURCES,
   MONTHS_ES,
   type Expense,
   type Income,
 } from '@/types/finance'
 import type { UnifiedTransaction } from '@/lib/mappers'
-
-const categoryColors: Record<string, string> = {
-  Super: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-  Transporte: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  Alquiler: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-  OCIO: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
-  Comida: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-  Suscripciones: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300',
-  Viaje: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
-  Devolucion: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-  Otro: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
-}
 
 export function TransactionsPage() {
   const {
@@ -81,6 +71,15 @@ export function TransactionsPage() {
   } = useTransactions()
   const selectedYear = useFinanceStore((s) => s.selectedYear)
   const { kpis } = useFinanceSelectors()
+  const accountSuggestions = useAccountSuggestions()
+
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>([...EXPENSE_CATEGORIES, ...INCOME_SOURCES])
+    for (const tx of filterByYear(unified, selectedYear)) {
+      if (tx.category) set.add(tx.category)
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'es'))
+  }, [unified, selectedYear])
 
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
@@ -264,7 +263,7 @@ export function TransactionsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
-                {EXPENSE_CATEGORIES.map((c) => (
+                {categoryOptions.map((c) => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
                 ))}
               </SelectContent>
@@ -275,7 +274,7 @@ export function TransactionsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas las cuentas</SelectItem>
-                {ACCOUNTS.map((a) => (
+                {accountSuggestions.map((a) => (
                   <SelectItem key={a} value={a}>{a}</SelectItem>
                 ))}
               </SelectContent>
@@ -333,7 +332,7 @@ export function TransactionsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={categoryColors[tx.category] ?? categoryColors.Otro}>
+                      <Badge className={categoryBadgeClass(tx.category)}>
                         {tx.category}
                       </Badge>
                     </TableCell>

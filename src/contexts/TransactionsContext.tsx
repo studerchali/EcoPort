@@ -54,6 +54,7 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
   const updateExpenseLocal = useFinanceStore((s) => s.updateExpense)
   const deleteIncomeLocal = useFinanceStore((s) => s.deleteIncome)
   const deleteExpenseLocal = useFinanceStore((s) => s.deleteExpense)
+  const rememberAccount = useFinanceStore((s) => s.rememberAccount)
 
   const isSupabaseMode = Boolean(user) && !isDemoUser(user)
 
@@ -139,11 +140,12 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
         if (!created) throw new Error('No se pudo crear el ingreso')
         return created
       }
+      rememberAccount(data.account)
       const { income } = await addIncomeRecord(data)
       await refresh()
       return income
     },
-    [isSupabaseMode, addIncomeLocal, refresh]
+    [isSupabaseMode, addIncomeLocal, rememberAccount, refresh]
   )
 
   const addExpense = useCallback(
@@ -154,11 +156,12 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
         if (!created) throw new Error('No se pudo crear el gasto')
         return created
       }
+      rememberAccount(data.paymentMethod)
       const { expense } = await addExpenseRecord(data)
       await refresh()
       return expense
     },
-    [isSupabaseMode, addExpenseLocal, refresh]
+    [isSupabaseMode, addExpenseLocal, rememberAccount, refresh]
   )
 
   const updateIncome = useCallback(
@@ -167,11 +170,12 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
         updateIncomeLocal(id, data)
         return { id, ...data }
       }
+      rememberAccount(data.account)
       const { income } = await correctIncomeRecord(id, data)
       await refresh()
       return income
     },
-    [isSupabaseMode, updateIncomeLocal, refresh]
+    [isSupabaseMode, updateIncomeLocal, rememberAccount, refresh]
   )
 
   const updateExpense = useCallback(
@@ -180,11 +184,12 @@ export function TransactionsProvider({ children }: { children: ReactNode }) {
         updateExpenseLocal(id, data)
         return { id, ...data }
       }
+      rememberAccount(data.paymentMethod)
       const { expense } = await correctExpenseRecord(id, data)
       await refresh()
       return expense
     },
-    [isSupabaseMode, updateExpenseLocal, refresh]
+    [isSupabaseMode, updateExpenseLocal, rememberAccount, refresh]
   )
 
   const deleteIncome = useCallback(

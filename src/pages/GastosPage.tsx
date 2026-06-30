@@ -32,19 +32,8 @@ import { useFinanceStore } from '@/store/financeStore'
 import { useFinanceSelectors } from '@/hooks/useFinanceSelectors'
 import { formatDate } from '@/lib/format'
 import { filterByYear, filterByMonthYear } from '@/lib/calculations'
+import { categoryBadgeClass } from '@/lib/categoryColors'
 import { EXPENSE_CATEGORIES, MONTHS_ES, type Expense } from '@/types/finance'
-
-const categoryColors: Record<string, string> = {
-  Super: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
-  Transporte: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  Alquiler: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-  OCIO: 'bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-300',
-  Comida: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
-  Suscripciones: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300',
-  Viaje: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
-  Devolucion: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-  Otro: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
-}
 
 export function GastosPage() {
   const { expenses, loading, deleteExpense } = useTransactions()
@@ -56,6 +45,14 @@ export function GastosPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all')
   const [monthFilter, setMonthFilter] = useState<string>('all')
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  const categoryOptions = useMemo(() => {
+    const set = new Set<string>(EXPENSE_CATEGORIES)
+    for (const expense of filterByYear(expenses, selectedYear)) {
+      if (expense.category) set.add(expense.category)
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'es'))
+  }, [expenses, selectedYear])
 
   const filtered = useMemo(() => {
     let list = filterByYear(expenses, selectedYear)
@@ -119,7 +116,7 @@ export function GastosPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Todas</SelectItem>
-                {EXPENSE_CATEGORIES.map((c) => (
+                {categoryOptions.map((c) => (
                   <SelectItem key={c} value={c}>{c}</SelectItem>
                 ))}
               </SelectContent>
@@ -152,7 +149,7 @@ export function GastosPage() {
                     <TableRow key={exp.id}>
                       <TableCell>{formatDate(exp.date)}</TableCell>
                       <TableCell>
-                        <Badge className={categoryColors[exp.category]}>
+                        <Badge className={categoryBadgeClass(exp.category)}>
                           {exp.category}
                         </Badge>
                       </TableCell>

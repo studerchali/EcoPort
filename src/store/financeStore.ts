@@ -10,10 +10,13 @@ import type {
   AppSettings,
 } from '@/types/finance'
 import { seedData } from '@/data/seed'
+import { rememberAccountInList } from '@/lib/accounts'
 
 interface FinanceState extends FinanceData {
+  savedAccounts: string[]
   selectedYear: number
   setSelectedYear: (year: number) => void
+  rememberAccount: (account: string) => void
   addIncome: (income: Omit<Income, 'id'>) => void
   updateIncome: (id: string, income: Partial<Income>) => void
   deleteIncome: (id: string) => void
@@ -43,13 +46,20 @@ export const useFinanceStore = create<FinanceState>()(
   persist(
     (set, get) => ({
       ...seedData,
+      savedAccounts: seedData.savedAccounts ?? [],
       selectedYear: 2026,
 
       setSelectedYear: (year) => set({ selectedYear: year }),
 
+      rememberAccount: (account) =>
+        set((state) => ({
+          savedAccounts: rememberAccountInList(state.savedAccounts, account),
+        })),
+
       addIncome: (income) =>
         set((state) => ({
           incomes: [...state.incomes, { ...income, id: generateId('inc') }],
+          savedAccounts: rememberAccountInList(state.savedAccounts, income.account),
         })),
 
       updateIncome: (id, income) =>
@@ -57,6 +67,9 @@ export const useFinanceStore = create<FinanceState>()(
           incomes: state.incomes.map((i) =>
             i.id === id ? { ...i, ...income } : i
           ),
+          savedAccounts: income.account
+            ? rememberAccountInList(state.savedAccounts, income.account)
+            : state.savedAccounts,
         })),
 
       deleteIncome: (id) =>
@@ -67,6 +80,10 @@ export const useFinanceStore = create<FinanceState>()(
       addExpense: (expense) =>
         set((state) => ({
           expenses: [...state.expenses, { ...expense, id: generateId('exp') }],
+          savedAccounts: rememberAccountInList(
+            state.savedAccounts,
+            expense.paymentMethod
+          ),
         })),
 
       updateExpense: (id, expense) =>
@@ -74,6 +91,9 @@ export const useFinanceStore = create<FinanceState>()(
           expenses: state.expenses.map((e) =>
             e.id === id ? { ...e, ...expense } : e
           ),
+          savedAccounts: expense.paymentMethod
+            ? rememberAccountInList(state.savedAccounts, expense.paymentMethod)
+            : state.savedAccounts,
         })),
 
       deleteExpense: (id) =>
@@ -159,22 +179,40 @@ export const useFinanceStore = create<FinanceState>()(
         })),
 
       importData: (data, replace = true) =>
-        set((state) =>
-          replace
-            ? { ...data, selectedYear: state.selectedYear }
-            : {
-                incomes: [...state.incomes, ...data.incomes],
-                expenses: [...state.expenses, ...data.expenses],
-                accountBalances: data.accountBalances,
-                debts: data.debts,
-                holdings: data.holdings,
-                fixedIncome: data.fixedIncome,
-                balanceHistory: data.balanceHistory,
-                settings: data.settings,
-              }
-        ),
+        set((state) => {
+          const mergedAccounts = [
+            ...(data.savedAccounts ?? []),
+            ...data.incomes.map((i) => i.account),
+            ...data.expenses.map((e) => e.paymentMethod),
+          ]
+          let savedAccounts = state.savedAccounts
+          for (const account of mergedAccounts) {
+            savedAccounts = rememberAccountInList(savedAccounts, account)
+          }
 
-      resetToSeed: () => set({ ...seedData, selectedYear: 2026 }),
+          if (replace) {
+            return {
+              ...data,
+              savedAccounts: data.savedAccounts ?? savedAccounts,
+              selectedYear: state.selectedYear,
+            }
+          }
+
+          return {
+            incomes: [...state.incomes, ...data.incomes],
+            expenses: [...state.expenses, ...data.expenses],
+            accountBalances: data.accountBalances,
+            debts: data.debts,
+            holdings: data.holdings,
+            fixedIncome: data.fixedIncome,
+            balanceHistory: data.balanceHistory,
+            settings: data.settings,
+            savedAccounts,
+          }
+        }),
+
+      resetToSeed: () =>
+        set({ ...seedData, savedAccounts: seedData.savedAccounts ?? [], selectedYear: 2026 }),
 
       getExportData: () => {
         const {
@@ -187,6 +225,7 @@ export const useFinanceStore = create<FinanceState>()(
           balanceHistory,
           settings,
         } = get()
+        const { savedAccounts } = get()
         return {
           incomes,
           expenses,
@@ -196,6 +235,7 @@ export const useFinanceStore = create<FinanceState>()(
           fixedIncome,
           balanceHistory,
           settings,
+          savedAccounts,
         }
       },
     }),
@@ -211,6 +251,7 @@ export const useFinanceStore = create<FinanceState>()(
         fixedIncome: state.fixedIncome,
         balanceHistory: state.balanceHistory,
         settings: state.settings,
+        savedAccounts: state.savedAccounts,
         selectedYear: state.selectedYear,
       }),
     }

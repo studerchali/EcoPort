@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -12,8 +12,15 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { SavedAccountField } from '@/components/forms/SavedAccountField'
 import { useTransactions } from '@/contexts/TransactionsContext'
-import { ACCOUNTS, type Income, type Currency, type AccountName } from '@/types/finance'
+import { normalizeAccountName } from '@/lib/accounts'
+import {
+  INCOME_SOURCES,
+  type Income,
+  type Currency,
+  type IncomeSource,
+} from '@/types/finance'
 import { cn } from '@/lib/utils'
 import { todayISO } from '@/lib/format'
 
@@ -28,16 +35,26 @@ export function IncomeForm({ initial, onSuccess, compact }: IncomeFormProps) {
   const [submitting, setSubmitting] = useState(false)
 
   const [date, setDate] = useState(initial?.date ?? todayISO())
-  const [source, setSource] = useState(initial?.source ?? 'Trabajo')
+  const [source, setSource] = useState(
+    initial?.source ?? ('Salario' satisfies IncomeSource)
+  )
   const [amount, setAmount] = useState(String(initial?.amount ?? ''))
   const [currency, setCurrency] = useState<Currency>(initial?.currency ?? 'EUR')
-  const [account, setAccount] = useState<AccountName>(initial?.account ?? 'Santander')
+  const [account, setAccount] = useState(initial?.account ?? '')
   const [notes, setNotes] = useState(initial?.notes ?? '')
+
+  const sourceOptions = useMemo(() => {
+    if (initial?.source && !INCOME_SOURCES.includes(initial.source as IncomeSource)) {
+      return [initial.source, ...INCOME_SOURCES]
+    }
+    return INCOME_SOURCES
+  }, [initial?.source])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const parsed = parseFloat(amount)
-    if (!parsed || parsed <= 0 || !source.trim()) {
+    const accountName = normalizeAccountName(account)
+    if (!parsed || parsed <= 0 || !source.trim() || !accountName) {
       toast.error('Completa los campos obligatorios')
       return
     }
@@ -47,7 +64,7 @@ export function IncomeForm({ initial, onSuccess, compact }: IncomeFormProps) {
       source: source.trim(),
       amount: parsed,
       currency,
-      account,
+      account: accountName,
       notes: notes.trim(),
     }
 
@@ -87,15 +104,23 @@ export function IncomeForm({ initial, onSuccess, compact }: IncomeFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="inc-source" className={labelClass}>Fuente</Label>
-          <Input
-            id="inc-source"
-            className={fieldClass}
+          <Label className={labelClass}>Fuente</Label>
+          <Select
             value={source}
-            onChange={(e) => setSource(e.target.value)}
-            required
+            onValueChange={setSource}
             disabled={submitting}
-          />
+          >
+            <SelectTrigger className={fieldClass}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {sourceOptions.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="inc-amount" className={labelClass}>Monto</Label>
@@ -129,23 +154,14 @@ export function IncomeForm({ initial, onSuccess, compact }: IncomeFormProps) {
           </Select>
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <Label className={labelClass}>Cuenta de entrada</Label>
-          <Select
+          <Label htmlFor="inc-account" className={labelClass}>Cuenta de entrada</Label>
+          <SavedAccountField
+            id="inc-account"
+            className={fieldClass}
             value={account}
-            onValueChange={(v: string) => setAccount(v as AccountName)}
+            onChange={setAccount}
             disabled={submitting}
-          >
-            <SelectTrigger className={fieldClass}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ACCOUNTS.map((a) => (
-                <SelectItem key={a} value={a}>
-                  {a}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          />
         </div>
         <div className="space-y-2 sm:col-span-2">
           <Label htmlFor="inc-notes">Notas</Label>

@@ -80,10 +80,10 @@ export function BalancePage() {
         </Card>
       </div>
 
-      <Tabs value={section} onValueChange={setSection}>
+      <Tabs value={section} onValueChange={setSection} className="space-y-4">
         <BalanceSectionNav value={section} onChange={setSection} />
 
-        <TabsContent value="mensual" className="mt-4">
+        <TabsContent value="mensual" className="mt-0">
           <Card>
             <CardContent className="overflow-x-auto pt-6">
               <Table>
@@ -145,7 +145,7 @@ export function BalancePage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="cuentas" className="mt-4">
+        <TabsContent value="cuentas" className="mt-0">
           <Card>
             <CardContent className="overflow-x-auto pt-6">
               <Table>
@@ -179,7 +179,7 @@ export function BalancePage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="deuda" className="mt-4">
+        <TabsContent value="deuda" className="mt-0">
           <div className="grid gap-4 lg:grid-cols-2">
             <Card>
               <CardHeader>
@@ -234,7 +234,7 @@ export function BalancePage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="historico" className="mt-4">
+        <TabsContent value="historico" className="mt-0">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Balance histórico</CardTitle>

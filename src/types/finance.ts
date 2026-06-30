@@ -1,26 +1,29 @@
 export type Currency = 'EUR' | 'USD' | 'ARS'
 
-export type ExpenseCategory =
-  | 'Super'
-  | 'Transporte'
+export type IncomeSource =
+  | 'Salario'
+  | 'Freelance'
+  | 'Inversiones'
   | 'Alquiler'
-  | 'OCIO'
-  | 'Comida'
-  | 'Suscripciones'
-  | 'Viaje'
-  | 'Devolucion'
+  | 'Venta'
+  | 'Regalo'
+  | 'Reembolso'
   | 'Otro'
 
-export type AccountName =
-  | 'Efectivo'
-  | 'Santander'
-  | 'Wells Fargo Checking'
-  | 'Wells Fargo AC'
-  | 'Capital One Savings'
-  | 'Capital One Credit'
-  | 'Discover Credit'
-  | 'IBKR'
-  | 'TradeRepublic'
+export type ExpenseCategory =
+  | 'Vivienda'
+  | 'Alimentación'
+  | 'Transporte'
+  | 'Salud'
+  | 'Educación'
+  | 'Ocio'
+  | 'Ropa y calzado'
+  | 'Suscripciones'
+  | 'Servicios'
+  | 'Otro'
+
+/** Cuenta definida por el usuario (texto libre). */
+export type AccountName = string
 
 export interface Income {
   id: string
@@ -35,7 +38,7 @@ export interface Income {
 export interface Expense {
   id: string
   date: string
-  category: ExpenseCategory
+  category: ExpenseCategory | string
   detail: string
   amount: number
   currency: Currency
@@ -110,30 +113,31 @@ export interface FinanceData {
   fixedIncome: FixedIncomeAccount[]
   balanceHistory: BalanceSnapshot[]
   settings: AppSettings
+  savedAccounts?: string[]
 }
 
-export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
-  'Super',
-  'Transporte',
+export const INCOME_SOURCES: IncomeSource[] = [
+  'Salario',
+  'Freelance',
+  'Inversiones',
   'Alquiler',
-  'OCIO',
-  'Comida',
-  'Suscripciones',
-  'Viaje',
-  'Devolucion',
+  'Venta',
+  'Regalo',
+  'Reembolso',
   'Otro',
 ]
 
-export const ACCOUNTS: AccountName[] = [
-  'Efectivo',
-  'Santander',
-  'Wells Fargo Checking',
-  'Wells Fargo AC',
-  'Capital One Savings',
-  'Capital One Credit',
-  'Discover Credit',
-  'IBKR',
-  'TradeRepublic',
+export const EXPENSE_CATEGORIES: ExpenseCategory[] = [
+  'Vivienda',
+  'Alimentación',
+  'Transporte',
+  'Salud',
+  'Educación',
+  'Ocio',
+  'Ropa y calzado',
+  'Suscripciones',
+  'Servicios',
+  'Otro',
 ]
 
 export const MONTHS_ES = [

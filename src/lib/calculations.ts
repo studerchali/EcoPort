@@ -16,7 +16,6 @@ import type {
   FixedIncomeAccount,
   Debt,
   AccountBalance,
-  ExpenseCategory,
   AccountName,
 } from '@/types/finance'
 import { MONTHS_ES } from '@/types/finance'
@@ -163,7 +162,7 @@ export function accountTotals(
 }
 
 export interface CategoryTotal {
-  category: ExpenseCategory
+  category: string
   totalEUR: number
   count: number
 }
@@ -174,7 +173,7 @@ export function expensesByCategory(
   rates: ExchangeRates
 ): CategoryTotal[] {
   const filtered = year ? filterByYear(expenses, year) : expenses
-  const map = new Map<ExpenseCategory, CategoryTotal>()
+  const map = new Map<string, CategoryTotal>()
 
   for (const expense of filtered) {
     const existing = map.get(expense.category) ?? {
@@ -194,7 +193,7 @@ export interface YtdKpis {
   totalIncomeEUR: number
   totalExpenseEUR: number
   netBalanceEUR: number
-  biggestCategory: ExpenseCategory | null
+  biggestCategory: string | null
   biggestCategoryAmount: number
   totalDebtEUR: number
   activeAccounts: number

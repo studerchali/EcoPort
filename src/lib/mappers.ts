@@ -8,20 +8,30 @@ import type {
   InvestmentHolding,
 } from '@/types/finance'
 import type { CreateInvestmentInput } from '@/lib/investments'
-import { ACCOUNTS, EXPENSE_CATEGORIES } from '@/types/finance'
+import { EXPENSE_CATEGORIES } from '@/types/finance'
+import { normalizeAccountName } from '@/lib/accounts'
+
+const LEGACY_EXPENSE_CATEGORY_MAP: Record<string, ExpenseCategory> = {
+  Super: 'Alimentación',
+  Comida: 'Alimentación',
+  Alquiler: 'Vivienda',
+  OCIO: 'Ocio',
+  Viaje: 'Ocio',
+  Devolucion: 'Otro',
+  Transporte: 'Transporte',
+  Suscripciones: 'Suscripciones',
+  Otro: 'Otro',
+}
 
 export function toAccountName(account: string | null | undefined): AccountName {
-  if (account && ACCOUNTS.includes(account as AccountName)) {
-    return account as AccountName
-  }
-  return 'Efectivo'
+  return normalizeAccountName(account ?? '')
 }
 
 export function toExpenseCategory(name: string): ExpenseCategory {
   if (EXPENSE_CATEGORIES.includes(name as ExpenseCategory)) {
     return name as ExpenseCategory
   }
-  return 'Otro'
+  return LEGACY_EXPENSE_CATEGORY_MAP[name] ?? 'Otro'
 }
 
 export function transactionToIncome(tx: Transaction): Income {
