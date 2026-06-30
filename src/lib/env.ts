@@ -2,3 +2,42 @@
 export function isPublicAccessEnabled(): boolean {
   return import.meta.env.VITE_ALLOW_PUBLIC_ACCESS === 'true'
 }
+
+/** URL base de la app (producción: dominio Vercel). */
+export function getAppUrl(): string {
+  const configured = import.meta.env.VITE_APP_URL
+  if (configured) return configured.replace(/\/$/, '')
+  if (typeof window !== 'undefined') return window.location.origin
+  return ''
+}
+
+export function getSupabaseEnv(): {
+  url: string | undefined
+  anonKey: string | undefined
+} {
+  return {
+    url: import.meta.env.VITE_SUPABASE_URL,
+    anonKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  }
+}
+
+/** Avisos de configuración en arranque (no bloquea la app). */
+export function validateEnvOnBoot(): void {
+  const { url, anonKey } = getSupabaseEnv()
+  const missing: string[] = []
+  if (!url) missing.push('VITE_SUPABASE_URL')
+  if (!anonKey) missing.push('VITE_SUPABASE_ANON_KEY')
+
+  if (missing.length > 0 && import.meta.env.PROD) {
+    console.error(
+      `[EcoPort] Faltan variables de entorno: ${missing.join(', ')}. ` +
+        'Configúralas en Vercel → Settings → Environment Variables.'
+    )
+  }
+
+  if (import.meta.env.PROD && isPublicAccessEnabled()) {
+    console.warn(
+      '[EcoPort] VITE_ALLOW_PUBLIC_ACCESS=true en producción — desactívalo por seguridad.'
+    )
+  }
+}

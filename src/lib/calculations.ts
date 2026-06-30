@@ -200,6 +200,51 @@ export interface YtdKpis {
   activeAccounts: number
 }
 
+export interface MonthSummary {
+  monthIndex: number
+  monthName: string
+  incomeEUR: number
+  expenseEUR: number
+  balanceEUR: number
+}
+
+export function monthSummary(
+  incomes: Income[],
+  expenses: Expense[],
+  monthIndex: number,
+  year: number,
+  rates: ExchangeRates
+): MonthSummary {
+  const monthIncomes = filterByMonthYear(incomes, monthIndex, year)
+  const monthExpenses = filterByMonthYear(expenses, monthIndex, year)
+
+  const incomeEUR = monthIncomes.reduce(
+    (sum, i) => sum + toEUR(i.amount, i.currency, rates),
+    0
+  )
+  const expenseEUR = monthExpenses.reduce(
+    (sum, e) => sum + toEUR(e.amount, e.currency, rates),
+    0
+  )
+
+  return {
+    monthIndex,
+    monthName: MONTHS_ES[monthIndex],
+    incomeEUR,
+    expenseEUR,
+    balanceEUR: incomeEUR - expenseEUR,
+  }
+}
+
+/** Mes a mostrar en el dashboard: actual si el año coincide, si no diciembre */
+export function displayMonthIndex(selectedYear: number): number {
+  const now = new Date()
+  if (getYear(now) === selectedYear) {
+    return getMonth(now)
+  }
+  return 11
+}
+
 export function ytdKpis(
   incomes: Income[],
   expenses: Expense[],

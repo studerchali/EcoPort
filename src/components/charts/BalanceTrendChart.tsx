@@ -16,6 +16,21 @@ interface BalanceTrendChartProps {
 }
 
 export function BalanceTrendChart({ data }: BalanceTrendChartProps) {
+  const hasData = data.some((d) => d.balance !== 0 || d.cumulative !== 0)
+
+  if (!hasData) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Tendencia de balance acumulado</CardTitle>
+        </CardHeader>
+        <CardContent className="py-8 text-center text-sm text-muted-foreground">
+          Sin datos de balance para mostrar
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>

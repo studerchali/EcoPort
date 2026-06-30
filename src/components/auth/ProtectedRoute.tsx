@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { TransactionsProvider } from '@/contexts/TransactionsContext'
+import { InvestmentsProvider } from '@/contexts/InvestmentsContext'
 import { isPublicAccessEnabled } from '@/lib/env'
 
 export function ProtectedRoute() {
@@ -12,7 +13,9 @@ export function ProtectedRoute() {
   if (publicAccess) {
     return (
       <TransactionsProvider>
-        <Outlet />
+        <InvestmentsProvider>
+          <Outlet />
+        </InvestmentsProvider>
       </TransactionsProvider>
     )
   }
@@ -34,7 +37,9 @@ export function ProtectedRoute() {
 
   return (
     <TransactionsProvider>
-      <Outlet />
+      <InvestmentsProvider>
+        <Outlet />
+      </InvestmentsProvider>
     </TransactionsProvider>
   )
 }

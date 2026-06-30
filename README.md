@@ -58,6 +58,21 @@ npm run preview    # Vista previa del build
 npm run lint       # Linter (oxlint)
 ```
 
+## Despliegue en producción
+
+EcoPort está preparado para Vercel con code splitting, PWA, `vercel.json` y variables de entorno documentadas.
+
+**Guía completa paso a paso:** [docs/DEPLOY.md](docs/DEPLOY.md)
+
+Variables obligatorias en Vercel:
+
+| Variable | Descripción |
+|----------|-------------|
+| `VITE_SUPABASE_URL` | URL del proyecto Supabase |
+| `VITE_SUPABASE_ANON_KEY` | Clave pública anon |
+| `VITE_APP_URL` | URL de producción (`https://tu-app.vercel.app`) |
+| `VITE_ALLOW_PUBLIC_ACCESS` | `false` en producción |
+
 ## Configuración de Supabase
 
 1. Crea un proyecto en Supabase.
@@ -113,8 +128,9 @@ Más información: [docs/SECURITY.md](docs/SECURITY.md)
 - [x] Sync de transacciones vía `TransactionsContext`
 - [x] Balance derivado desde `calculations.ts`
 - [x] PWA instalable
+- [x] Sync de inversiones con Supabase
+- [x] Preparado para despliegue en Vercel
 - [ ] Perfil y preferencias de usuario
-- [ ] Sync completo de inversiones con Supabase
 - [ ] Tests automatizados
 
 ## Desarrollo con agentes

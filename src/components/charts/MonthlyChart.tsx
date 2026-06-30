@@ -23,6 +23,21 @@ export function MonthlyChart({ data }: MonthlyChartProps) {
     gastos: Math.round(d.expenseEUR * 100) / 100,
   }))
 
+  const hasData = chartData.some((d) => d.ingresos > 0 || d.gastos > 0)
+
+  if (!hasData) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Ingresos vs Gastos mensual</CardTitle>
+        </CardHeader>
+        <CardContent className="py-8 text-center text-sm text-muted-foreground">
+          Sin movimientos en {data[0]?.year ?? 'este año'}
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>

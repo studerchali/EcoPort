@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTransactions } from '@/contexts/TransactionsContext'
+import { useInvestments } from '@/contexts/InvestmentsContext'
 import { useFinanceStore } from '@/store/financeStore'
 import {
   monthlyIncomeExpenseBalance,
@@ -13,12 +14,14 @@ import {
   fixedIncomeAnnualInterest,
   computeAccountBalances,
   projectFutureValue,
+  monthSummary,
+  displayMonthIndex,
 } from '@/lib/calculations'
 
 export function useFinanceSelectors() {
   const { incomes, expenses } = useTransactions()
+  const { holdings } = useInvestments()
   const debts = useFinanceStore((s) => s.debts)
-  const holdings = useFinanceStore((s) => s.holdings)
   const fixedIncome = useFinanceStore((s) => s.fixedIncome)
   const accountBalances = useFinanceStore((s) => s.accountBalances)
   const balanceHistory = useFinanceStore((s) => s.balanceHistory)
@@ -26,11 +29,19 @@ export function useFinanceSelectors() {
   const selectedYear = useFinanceStore((s) => s.selectedYear)
   const rates = settings.exchangeRates
 
-  return useMemo(
-    () => ({
+  return useMemo(() => {
+    const monthIdx = displayMonthIndex(selectedYear)
+    return {
       monthlyBalance: monthlyIncomeExpenseBalance(
         incomes,
         expenses,
+        selectedYear,
+        rates
+      ),
+      currentMonth: monthSummary(
+        incomes,
+        expenses,
+        monthIdx,
         selectedYear,
         rates
       ),
@@ -58,18 +69,17 @@ export function useFinanceSelectors() {
       settings,
       selectedYear,
       rates,
-    }),
-    [
-      incomes,
-      expenses,
-      debts,
-      holdings,
-      fixedIncome,
-      accountBalances,
-      balanceHistory,
-      settings,
-      selectedYear,
-      rates,
-    ]
-  )
+    }
+  }, [
+    incomes,
+    expenses,
+    holdings,
+    debts,
+    fixedIncome,
+    accountBalances,
+    balanceHistory,
+    settings,
+    selectedYear,
+    rates,
+  ])
 }

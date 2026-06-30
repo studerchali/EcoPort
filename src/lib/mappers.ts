@@ -1,11 +1,13 @@
-import type { CreateTransactionInput, Transaction } from '@/types/database'
+import type { CreateTransactionInput, Investment, Transaction } from '@/types/database'
 import type {
   AccountName,
   Currency,
   Expense,
   ExpenseCategory,
   Income,
+  InvestmentHolding,
 } from '@/types/finance'
+import type { CreateInvestmentInput } from '@/lib/investments'
 import { ACCOUNTS, EXPENSE_CATEGORIES } from '@/types/finance'
 
 export function toAccountName(account: string | null | undefined): AccountName {
@@ -150,5 +152,30 @@ export function toUnifiedTransaction(tx: Transaction): UnifiedTransaction {
     account: exp.paymentMethod,
     description: exp.detail,
     notes: exp.notes,
+  }
+}
+
+export function investmentToHolding(inv: Investment): InvestmentHolding {
+  return {
+    id: inv.id,
+    ticker: inv.asset,
+    platform: inv.platform,
+    units: inv.quantity,
+    avgPrice: inv.buy_price,
+    currentPrice: inv.current_price,
+  }
+}
+
+export function holdingToCreateInput(
+  holding: Omit<InvestmentHolding, 'id'>,
+  currency: Currency = 'USD'
+): CreateInvestmentInput {
+  return {
+    asset: holding.ticker,
+    platform: holding.platform,
+    quantity: holding.units,
+    buy_price: holding.avgPrice,
+    current_price: holding.currentPrice,
+    currency,
   }
 }

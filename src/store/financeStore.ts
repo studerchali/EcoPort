@@ -21,6 +21,8 @@ interface FinanceState extends FinanceData {
   updateExpense: (id: string, expense: Partial<Expense>) => void
   deleteExpense: (id: string) => void
   updateHolding: (id: string, holding: Partial<InvestmentHolding>) => void
+  addHolding: (holding: Omit<InvestmentHolding, 'id'>) => void
+  deleteHolding: (id: string) => void
   addHoldings: (holdings: Omit<InvestmentHolding, 'id'>[]) => void
   importHoldings: (
     holdings: Omit<InvestmentHolding, 'id'>[],
@@ -84,6 +86,19 @@ export const useFinanceStore = create<FinanceState>()(
           holdings: state.holdings.map((h) =>
             h.id === id ? { ...h, ...holding } : h
           ),
+        })),
+
+      addHolding: (holding) =>
+        set((state) => ({
+          holdings: [
+            ...state.holdings,
+            { ...holding, id: generateId('hold') },
+          ],
+        })),
+
+      deleteHolding: (id) =>
+        set((state) => ({
+          holdings: state.holdings.filter((h) => h.id !== id),
         })),
 
       addHoldings: (holdings) =>
