@@ -2,7 +2,8 @@ import type { User } from '@supabase/supabase-js'
 import { isDemoUser } from '@/lib/demo'
 
 export const LEGACY_STORAGE_KEY = 'ecoport-v1'
-export const STORAGE_KEY_PREFIX = 'ecoport-v1'
+/** v2: datos demo ficticios; la clave anterior queda obsoleta (sin datos personales). */
+export const STORAGE_KEY_PREFIX = 'ecoport-v2'
 
 export type StorageScope = 'guest' | 'demo' | `user:${string}`
 

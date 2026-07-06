@@ -10,6 +10,7 @@ Prefija tu prompt con el agente deseado:
 @AGENTE 1 Verifica que el balance de mayo 2026 coincida con el Excel
 @AGENTE 2 Mejora el diseño responsive de la tabla de gastos
 @AGENTE 4 Añade validación al importar JSON corrupto
+@AGENTE 6 Audita las policies RLS de la tabla investments
 ```
 
 El agente principal lee la sección correspondiente, trabaja solo en los archivos indicados y respeta las reglas del agente.
@@ -146,12 +147,53 @@ El agente principal lee la sección correspondiente, trabaja solo en los archivo
 
 ---
 
+## AGENTE 6 — SEGURIDAD Y CUMPLIMIENTO
+
+**Rol:** Proteger los datos financieros del usuario, garantizar que el uso de Supabase sea seguro y que se cumplan las prácticas definidas en `docs/SECURITY.md`.
+
+**Responsabilidades:**
+- Revisar que **todas las tablas sensibles** tengan RLS correctamente configurado (`auth.uid() = user_id`).
+- Verificar que **nunca** se use `service_role` key en código del cliente ni se commitee.
+- Validar flujos de autenticación, ProtectedRoute y manejo de sesiones (demo vs real vs guest).
+- Revisar importaciones de datos (CSV/JSON/Excel) para evitar inyección o datos corruptos que rompan integridad.
+- Comprobar que no haya secretos hardcodeados, variables de entorno mal usadas o cabeceras de seguridad faltantes.
+- Alinear cualquier cambio con el documento `docs/SECURITY.md`.
+- Sugerir o generar pruebas básicas de políticas RLS cuando se modifiquen tablas o migraciones.
+
+**Archivos clave:**
+- `supabase/migrations/` (especialmente policies)
+- `src/lib/supabase.ts`
+- `src/contexts/AuthContext.tsx`
+- `src/components/auth/`
+- `src/store/financeStore.ts`
+- `src/lib/import-*.ts` y scripts de importación
+- `vercel.json` (headers de seguridad)
+- `docs/SECURITY.md` (referencia obligatoria)
+
+**Reglas estrictas:**
+- **NUNCA** permitir que se desactive RLS o se creen políticas amplias tipo `true` o `authenticated`.
+- Toda query que filtre por usuario **debe** usar `auth.uid()`.
+- Si el agente detecta un riesgo de seguridad, debe **bloquear** el avance hasta que se corrija.
+- Priorizar siempre la integridad y privacidad de los datos financieros por encima de la velocidad de desarrollo.
+- Referenciar explícitamente `docs/SECURITY.md` en cada revisión.
+
+**Ejemplo:**
+> @AGENTE 6 Revisa las policies de RLS de la tabla investments y confirma que solo el dueño puede ver sus datos. Actualiza SECURITY.md si hace falta.
+
+> @AGENTE 6 Audita el flujo de importación de broker CSV y verifica que no haya riesgo de inyección o datos de otros usuarios.
+
+---
+
 ## Flujo recomendado de iteración
 
-1. **Funcionalidad primero** → AGENTE 1 + AGENTE 4
-2. **Pulir UI** → AGENTE 2
-3. **Revisar consistencia** → AGENTE 5
-4. **Limpiar** → AGENTE 3
+1. **Funcionalidad + Integridad de datos** → AGENTE 1 + AGENTE 4
+2. **Seguridad y Cumplimiento** → **AGENTE 6** (obligatorio cuando se tocan auth, Supabase, migraciones, importaciones o datos sensibles)
+3. **Pulir UI / UX** → AGENTE 2
+4. **Revisar consistencia global** → AGENTE 5
+5. **Limpiar y mantener** → AGENTE 3
+
+**Regla importante:**  
+El paso de **AGENTE 6 (Seguridad)** es **obligatorio** antes de hacer deploy a producción o cuando se modifiquen archivos relacionados con autenticación, base de datos o importación de datos. No se puede saltar.
 
 ## Verificación antes de cerrar una tarea
 

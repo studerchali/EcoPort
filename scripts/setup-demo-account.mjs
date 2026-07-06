@@ -1,5 +1,5 @@
 /**
- * Crea la cuenta demo en Supabase y opcionalmente carga datos de ejemplo.
+ * Crea la cuenta demo en Supabase y carga datos ficticios de ejemplo.
  * Uso: node scripts/setup-demo-account.mjs
  * Requiere VITE_SUPABASE_URL y VITE_SUPABASE_ANON_KEY en .env.local
  */
@@ -52,22 +52,35 @@ if (!url || !anonKey) {
 const supabase = createClient(url, anonKey)
 
 const demoIncomes = [
-  { date: '2026-05-15', source: 'Salario', amount: 2500, currency: 'EUR', account: 'Santander', notes: 'Nómina mayo (demo)' },
-  { date: '2026-04-15', source: 'Salario', amount: 2500, currency: 'EUR', account: 'Santander', notes: 'Nómina abril (demo)' },
-  { date: '2026-05-20', source: 'Freelance', amount: 450, currency: 'EUR', account: 'Efectivo', notes: 'Proyecto demo' },
+  { date: '2026-06-30', source: 'Salario', amount: 2450, currency: 'EUR', account: 'Cuenta Nómina', notes: 'Nómina junio' },
+  { date: '2026-06-15', source: 'Freelance', amount: 680, currency: 'EUR', account: 'Revolut', notes: 'Proyecto diseño web' },
+  { date: '2026-06-08', source: 'Reembolso', amount: 34.5, currency: 'EUR', account: 'Cuenta Nómina', notes: 'Devolución compra online' },
+  { date: '2026-06-03', source: 'Inversiones', amount: 42.8, currency: 'EUR', account: 'Degiro', notes: 'Dividendo ETF acumulativo' },
+  { date: '2026-05-31', source: 'Salario', amount: 2450, currency: 'EUR', account: 'Cuenta Nómina', notes: 'Nómina mayo' },
+  { date: '2026-05-22', source: 'Freelance', amount: 520, currency: 'EUR', account: 'Revolut', notes: 'Consultoría marketing digital' },
+  { date: '2026-05-18', source: 'Alquiler', amount: 350, currency: 'EUR', account: 'Revolut', notes: 'Ingreso por habitación alquilada' },
+  { date: '2026-05-12', source: 'Venta', amount: 85, currency: 'EUR', account: 'Efectivo', notes: 'Venta mueble de segunda mano' },
+  { date: '2026-05-05', source: 'Reembolso', amount: 120, currency: 'EUR', account: 'Cuenta Nómina', notes: 'Reembolso seguro médico' },
+  { date: '2026-05-01', source: 'Salario', amount: 400, currency: 'EUR', account: 'Cuenta Nómina', notes: 'Bonus trimestral' },
 ]
 
 const demoExpenses = [
-  { date: '2026-05-28', category: 'Super', detail: 'Compra semanal', amount: 85.4, currency: 'EUR', paymentMethod: 'Santander' },
-  { date: '2026-05-25', category: 'Transporte', detail: 'Abono mensual', amount: 40, currency: 'EUR', paymentMethod: 'Santander' },
-  { date: '2026-05-20', category: 'Alquiler', detail: 'Alquiler mayo', amount: 800, currency: 'EUR', paymentMethod: 'Santander' },
-  { date: '2026-05-18', category: 'Suscripciones', detail: 'Streaming', amount: 12.99, currency: 'EUR', paymentMethod: 'Santander' },
-  { date: '2026-05-10', category: 'OCIO', detail: 'Cena restaurante', amount: 45, currency: 'EUR', paymentMethod: 'Santander' },
+  { date: '2026-06-28', category: 'Vivienda', detail: 'Alquiler junio', amount: 750, currency: 'EUR', paymentMethod: 'Cuenta Nómina' },
+  { date: '2026-06-25', category: 'Alimentación', detail: 'Compra semanal supermercado', amount: 78.45, currency: 'EUR', paymentMethod: 'Revolut' },
+  { date: '2026-06-20', category: 'Transporte', detail: 'Abono transporte público', amount: 35, currency: 'EUR', paymentMethod: 'Revolut' },
+  { date: '2026-06-15', category: 'Suscripciones', detail: 'Streaming y música', amount: 22.98, currency: 'EUR', paymentMethod: 'Cuenta Nómina' },
+  { date: '2026-06-10', category: 'Ocio', detail: 'Cena en restaurante', amount: 58.3, currency: 'EUR', paymentMethod: 'Revolut' },
+  { date: '2026-05-28', category: 'Salud', detail: 'Farmacia y parafarmacia', amount: 24.6, currency: 'EUR', paymentMethod: 'Cuenta Nómina' },
+  { date: '2026-05-22', category: 'Servicios', detail: 'Factura electricidad', amount: 68.4, currency: 'EUR', paymentMethod: 'Cuenta Nómina' },
+  { date: '2026-05-18', category: 'Alimentación', detail: 'Compra mensual alimentación', amount: 92.15, currency: 'EUR', paymentMethod: 'Revolut' },
+  { date: '2026-05-12', category: 'Transporte', detail: 'Repostaje', amount: 45.8, currency: 'EUR', paymentMethod: 'Revolut' },
+  { date: '2026-05-05', category: 'Ocio', detail: 'Entradas concierto', amount: 65, currency: 'EUR', paymentMethod: 'Cuenta Nómina' },
 ]
 
 const demoInvestments = [
-  { asset: 'VWCE', platform: 'IBKR', quantity: 10, buy_price: 100, current_price: 105, currency: 'USD' },
-  { asset: 'MSFT', platform: 'IBKR', quantity: 2, buy_price: 400, current_price: 420, currency: 'USD' },
+  { asset: 'VWCE', platform: 'Degiro', quantity: 15, buy_price: 102.5, current_price: 108.2, currency: 'USD' },
+  { asset: 'MSFT', platform: 'Degiro', quantity: 3, buy_price: 380, current_price: 415.5, currency: 'USD' },
+  { asset: 'NVDA', platform: 'Interactive Brokers', quantity: 5, buy_price: 125, current_price: 142.3, currency: 'USD' },
 ]
 
 async function ensureDemoUser() {
@@ -114,7 +127,6 @@ async function ensureDemoUser() {
     return signUp.session.user
   }
 
-  // Reintento login (email confirmation off)
   const retry = await supabase.auth.signInWithPassword({ email, password })
   if (retry.error || !retry.data.user) {
     console.error('Cuenta creada pero no se pudo iniciar sesión:', retry.error?.message)
@@ -126,16 +138,32 @@ async function ensureDemoUser() {
   return retry.data.user
 }
 
-async function seedDemoData(userId) {
-  const { count } = await supabase
+async function clearDemoData(userId) {
+  const { error: txDelError } = await supabase
     .from('transactions')
-    .select('id', { count: 'exact', head: true })
+    .delete()
     .eq('user_id', userId)
 
-  if (count && count > 0) {
-    console.log(`✓ La cuenta demo ya tiene ${count} transacciones — omitiendo seed`)
-    return
+  if (txDelError) {
+    console.error('Error al borrar transacciones demo:', txDelError.message)
+    process.exit(1)
   }
+
+  const { error: invDelError } = await supabase
+    .from('investments')
+    .delete()
+    .eq('user_id', userId)
+
+  if (invDelError) {
+    console.error('Error al borrar inversiones demo:', invDelError.message)
+    process.exit(1)
+  }
+
+  console.log('✓ Datos anteriores de la cuenta demo eliminados')
+}
+
+async function seedDemoData(userId) {
+  await clearDemoData(userId)
 
   const incomeRows = demoIncomes.map((i) => ({
     user_id: userId,
@@ -171,22 +199,15 @@ async function seedDemoData(userId) {
   }
   console.log(`✓ ${incomeRows.length + expenseRows.length} transacciones demo insertadas`)
 
-  const { count: invCount } = await supabase
-    .from('investments')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', userId)
-
-  if (!invCount || invCount === 0) {
-    const invRows = demoInvestments.map((inv) => ({
-      user_id: userId,
-      ...inv,
-    }))
-    const { error: invError } = await supabase.from('investments').insert(invRows)
-    if (invError) {
-      console.warn('Aviso inversiones demo:', invError.message)
-    } else {
-      console.log(`✓ ${invRows.length} inversiones demo insertadas`)
-    }
+  const invRows = demoInvestments.map((inv) => ({
+    user_id: userId,
+    ...inv,
+  }))
+  const { error: invError } = await supabase.from('investments').insert(invRows)
+  if (invError) {
+    console.warn('Aviso inversiones demo:', invError.message)
+  } else {
+    console.log(`✓ ${invRows.length} inversiones demo insertadas`)
   }
 }
 

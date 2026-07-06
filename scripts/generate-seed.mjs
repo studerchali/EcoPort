@@ -1,6 +1,9 @@
 /**
  * Genera src/data/seed.ts desde Finanzaspersonales.xlsx y el CSV IBKR.
  * Uso: node scripts/generate-seed.mjs
+ *
+ * ATENCIÓN: este script importa datos reales del Excel. Para datos demo
+ * ficticios editar directamente src/data/seed.ts (no regenerar desde Excel).
  */
 import { readFileSync, writeFileSync } from 'fs'
 import { join, dirname } from 'path'
